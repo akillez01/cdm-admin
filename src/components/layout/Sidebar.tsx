@@ -1,80 +1,154 @@
+import {
+  BarChart2,
+  Calendar,
+  ChevronLeft,
+  Church,
+  DollarSign,
+  Home,
+  LogOut,
+  Menu,
+  Package,
+  Settings,
+  Users,
+  X
+} from 'lucide-react';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  Home, Users, DollarSign, BarChart2, 
-  Calendar, Package, Settings, LogOut, 
-  Church
-} from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
+  isMinimized: boolean;
+  onToggle: () => void;
+  onMinimize: () => void;
+  onClose?: () => void;
 }
 
-interface NavItem {
-  name: string;
-  path: string;
-  icon: React.ReactNode;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
+const Sidebar: React.FC<SidebarProps> = ({ 
+  isOpen, 
+  isMinimized, 
+  onToggle, 
+  onMinimize, 
+  onClose 
+}) => {
   const location = useLocation();
   
-  const navItems: NavItem[] = [
-    { name: 'Dashboard', path: '/', icon: <Home size={20} /> },
-    { name: 'Membros', path: '/members', icon: <Users size={20} /> },
-    { name: 'Finanças', path: '/finance', icon: <DollarSign size={20} /> },
-    { name: 'Estoque', path: '/inventory', icon: <Package size={20} /> },
-    { name: 'Eventos', path: '/events', icon: <Calendar size={20} /> },
-    { name: 'Relatórios', path: '/reports', icon: <BarChart2 size={20} /> },
-    { name: 'Configurações', path: '/settings', icon: <Settings size={20} /> },
+  const navItems = [
+    { name: 'Dashboard', path: '/', icon: <Home size={22} /> },
+    { name: 'Membros', path: '/members', icon: <Users size={22} /> },
+    { name: 'Finanças', path: '/finance', icon: <DollarSign size={22} /> },
+    { name: 'Estoque', path: '/inventory', icon: <Package size={22} /> },
+    { name: 'Eventos', path: '/events', icon: <Calendar size={22} /> },
+    { name: 'Relatórios', path: '/reports', icon: <BarChart2 size={22} /> },
+    { name: 'Configurações', path: '/settings', icon: <Settings size={22} /> },
   ];
 
+  const handleLinkClick = () => {
+    if (window.innerWidth < 768 && onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <aside 
-      className={`fixed top-0 left-0 z-20 h-full bg-primary-500 dark:bg-primary-700 text-white transition-all duration-300 ease-in-out ${
-        isOpen ? 'w-64' : 'w-0 md:w-16'
-      } overflow-hidden shadow-lg`}
-    >
-      <div className="flex flex-col h-full">
-        <div className={`flex items-center ${isOpen ? 'px-6' : 'px-3'} py-6 justify-center md:justify-start`}>
-          <Church size={28} className="text-secondary-500" />
-          {isOpen && (
-            <span className="ml-2 text-xl font-display font-semibold transition-opacity duration-200">
-              IgrejaApp
-            </span>
-          )}
+    <>
+      {/* Botão de abrir (hamburger) - Mobile */}
+      {!isOpen && (
+        <button
+          onClick={onToggle}
+          className="fixed md:hidden z-30 top-4 left-4 p-2 rounded-md bg-primary-600 text-white shadow-lg"
+          aria-label="Abrir menu"
+        >
+          <Menu size={24} />
+        </button>
+      )}
+
+      {/* Overlay para mobile */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30 md:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <aside
+        className={`
+          fixed top-0 left-0 z-50 h-full bg-primary-600 text-white 
+          transition-all duration-300 ease-in-out
+          ${isOpen ? (isMinimized ? 'w-20' : 'w-64') : 'w-0'}
+          overflow-hidden shadow-xl
+        `}
+      >
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-5 border-b border-primary-500">
+            <div className="flex items-center">
+              <Church size={26} className="text-secondary-400" />
+              {!isMinimized && (
+                <h1 className="ml-3 text-xl font-bold truncate">IgrejaApp</h1>
+              )}
+            </div>
+            
+            {/* Botão de minimizar (desktop) */}
+            <button
+              onClick={onMinimize}
+              className="hidden md:flex items-center justify-center p-1 rounded hover:bg-primary-500 transition"
+              aria-label={isMinimized ? "Expandir menu" : "Minimizar menu"}
+            >
+              <ChevronLeft 
+                size={20} 
+                className={`transition-transform duration-300 ${isMinimized ? 'rotate-180' : ''}`}
+              />
+            </button>
+            
+            {/* Botão de fechar (mobile) */}
+            <button
+              onClick={onClose}
+              className="md:hidden flex items-center justify-center p-1 rounded hover:bg-primary-500 transition"
+              aria-label="Fechar menu"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 overflow-y-auto py-2">
+            <ul className="space-y-1 px-2">
+              {navItems.map((item) => (
+                <li key={item.path}>
+                  <Link
+                    to={item.path}
+                    onClick={handleLinkClick}
+                    className={`flex items-center rounded-lg p-3 transition-colors ${
+                      location.pathname === item.path
+                        ? 'bg-primary-700 text-white'
+                        : 'hover:bg-primary-500 text-gray-100'
+                    } ${isMinimized ? 'justify-center' : ''}`}
+                  >
+                    <span className="flex-shrink-0">{item.icon}</span>
+                    {!isMinimized && (
+                      <span className="ml-3 truncate text-sm font-medium">
+                        {item.name}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Footer */}
+          <div className="border-t border-primary-500 p-2">
+            <button
+              className={`flex items-center w-full rounded-lg p-3 text-gray-100 hover:bg-primary-500 ${
+                isMinimized ? 'justify-center' : ''
+              }`}
+            >
+              <LogOut size={22} />
+              {!isMinimized && <span className="ml-3 truncate text-sm">Sair</span>}
+            </button>
+          </div>
         </div>
-        
-        <nav className="flex-1 px-3 py-4">
-          <ul className="space-y-1">
-            {navItems.map((item) => (
-              <li key={item.path}>
-                <Link
-                  to={item.path}
-                  className={`flex items-center px-3 py-2 rounded-md transition-colors ${
-                    location.pathname === item.path
-                      ? 'bg-primary-600 text-white'
-                      : 'text-gray-100 hover:bg-primary-400'
-                  } ${!isOpen ? 'justify-center' : ''}`}
-                >
-                  <span className="text-secondary-400">{item.icon}</span>
-                  {isOpen && <span className="ml-3">{item.name}</span>}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        
-        <div className="px-3 py-4 border-t border-primary-400">
-          <button className={`flex items-center px-3 py-2 rounded-md text-gray-100 hover:bg-primary-400 w-full ${
-            !isOpen ? 'justify-center' : ''
-          }`}>
-            <LogOut size={20} className="text-secondary-400" />
-            {isOpen && <span className="ml-3">Sair</span>}
-          </button>
-        </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 };
 
