@@ -1,15 +1,16 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
-import Members from './pages/Members';
+import Events from './pages/Events';
 import Finance from './pages/Finance';
 import Inventory from './pages/Inventory';
-import Events from './pages/Events';
+import Members from './pages/Members';
+import Reports from './pages/Reports';
+import Settings from './pages/Settings';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/cdm-admin">
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
@@ -17,8 +18,8 @@ function App() {
           <Route path="finance" element={<Finance />} />
           <Route path="inventory" element={<Inventory />} />
           <Route path="events" element={<Events />} />
-          <Route path="reports" element={<Dashboard />} />
-          <Route path="settings" element={<Dashboard />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="settings" element={<Settings />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
