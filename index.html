@@ -1,17 +1,30 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="./vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; 
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com; 
+      font-src 'self' https://fonts.gstatic.com;
+      script-src 'self' 'unsafe-inline' https://www.gstatic.com;
+      img-src 'self' data: https://*;">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     <title>Sistema de Gestão Eclesiástica</title>
-    <script type="module" crossorigin src="/cdm-admin/assets/index-BEDIS8DL.js"></script>
-    <link rel="stylesheet" crossorigin href="/cdm-admin/assets/index-BCg0bOEL.css">
+    <script type="module" crossorigin src="/cdm-admin/assets/index-D70UNGCx.js"></script>
+    <link rel="stylesheet" crossorigin href="/cdm-admin/assets/index-CiqEAZxW.css">
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- Fallback para SPA (React Router) -->
+    <script>
+      if (window.location.pathname !== '/' && !window.location.pathname.startsWith('/cdm-admin')) {
+        window.history.replaceState({}, '', '/cdm-admin/');
+      }
+    </script>
   </body>
 </html>
