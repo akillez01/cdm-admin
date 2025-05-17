@@ -40,6 +40,11 @@ export function useSupabase() {
     return data;
   }, []);
 
+  const deleteMember = useCallback(async (id: string) => {
+    const { error } = await supabase.from('members').delete().eq('id', id);
+    if (error) throw error;
+  }, []);
+
   // Inventário
   const getInventory = useCallback(async () => {
     const { data, error } = await supabase
@@ -77,6 +82,11 @@ export function useSupabase() {
 
     if (error) throw error;
     return data;
+  }, []);
+
+  const deleteInventoryItem = useCallback(async (id: string) => {
+    const { error } = await supabase.from('inventory_items').delete().eq('id', id);
+    if (error) throw error;
   }, []);
 
   // Transações
@@ -123,9 +133,11 @@ export function useSupabase() {
     getMembers,
     addMember,
     updateMember,
+    deleteMember,
     getInventory,
     addInventoryItem,
     updateInventoryItem,
+    deleteInventoryItem,
     getTransactions,
     addTransaction,
     updateTransaction,

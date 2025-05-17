@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Package, AlertTriangle, ShoppingCart
-} from 'lucide-react';
-import InventoryList from '../components/inventory/InventoryList';
-import InventoryForm from '../components/inventory/InventoryForm';
-import Modal from '../components/ui/Modal';
+import { AlertTriangle, Package, ShoppingCart } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import MetricsCard from '../components/dashboard/MetricsCard';
+import InventoryForm from '../components/inventory/InventoryForm';
+import InventoryList from '../components/inventory/InventoryList';
+import Modal from '../components/ui/Modal';
 import { useSupabase } from '../hooks/useSupabase';
 import { InventoryItem } from '../types';
 
@@ -14,7 +12,7 @@ const Inventory: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { getInventory, addInventoryItem, updateInventoryItem } = useSupabase();
+  const { getInventory, addInventoryItem, updateInventoryItem, deleteInventoryItem } = useSupabase();
 
   useEffect(() => {
     loadInventory();
@@ -45,6 +43,18 @@ const Inventory: React.FC = () => {
   const handleCloseModal = () => {
     setIsAddingItem(false);
     setSelectedItem(null);
+  };
+
+  const handleDeleteItem = async (id: string) => {
+    if (window.confirm('Deseja realmente excluir este item?')) {
+      try {
+        await deleteInventoryItem(id);
+        await loadInventory();
+        handleCloseModal();
+      } catch (error) {
+        alert('Erro ao excluir item!');
+      }
+    }
   };
 
   const handleSubmit = async (data: Partial<InventoryItem>) => {
@@ -158,9 +168,19 @@ const Inventory: React.FC = () => {
           onSubmit={handleSubmit}
           onCancel={handleCloseModal}
         />
+        {selectedItem && (
+          <div className="flex justify-end mt-4">
+            <button
+              onClick={() => handleDeleteItem(selectedItem.id)}
+              className="btn btn-danger"
+            >
+              Excluir
+            </button>
+          </div>
+        )}
       </Modal>
     </div>
   );
 };
 
-export default Inventory
+export default Inventory;
