@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Users, DollarSign, CalendarDays, Package, 
-  TrendingUp, ArrowUpRight, PieChart, BarChart2
+import {
+  ArrowUpRight,
+  CalendarDays,
+  DollarSign,
+  Package,
+  TrendingUp,
+  Users
 } from 'lucide-react';
-import MetricsCard from '../components/dashboard/MetricsCard';
+import React, { useEffect, useState } from 'react';
 import ChartComponent from '../components/dashboard/ChartComponent';
+import MetricsCard from '../components/dashboard/MetricsCard';
 import { useSupabase } from '../hooks/useSupabase';
 
 const Dashboard: React.FC = () => {
