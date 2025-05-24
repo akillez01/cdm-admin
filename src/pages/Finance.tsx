@@ -4,7 +4,8 @@ import {
   DollarSign,
   Download,
   PieChart,
-  TrendingUp, Wallet
+  TrendingUp,
+  Wallet
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import ChartComponent from '../components/dashboard/ChartComponent';
@@ -110,77 +111,82 @@ const Finance: React.FC = () => {
   }
 
   return (
-    <div className="animate-fade-in p-4 md:p-6">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
+    <div className="animate-fade-in p-4 sm:p-6">
+      <header className="mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-1 sm:mb-2">
           Finanças
         </h1>
-        <p className="text-gray-500 dark:text-gray-400">
+        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
           Gerencie receitas, despesas e relatórios financeiros
         </p>
       </header>
 
       {/* Financial Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <MetricsCard
           title="Receitas Totais"
           value={financialMetrics.totalRevenue}
           prefix="R$ "
-          icon={<DollarSign size={20} className="text-green-500" />}
+          icon={<DollarSign size={18} className="text-green-500" />}
           iconBackground="bg-green-100 dark:bg-green-800"
+          compact
         />
         
         <MetricsCard
           title="Despesas Totais"
           value={financialMetrics.totalExpenses}
           prefix="R$ "
-          icon={<CreditCard size={20} className="text-red-500" />}
+          icon={<CreditCard size={18} className="text-red-500" />}
           iconBackground="bg-red-100 dark:bg-red-800"
+          compact
         />
         
         <MetricsCard
           title="Saldo Atual"
           value={financialMetrics.balance}
           prefix="R$ "
-          icon={<Wallet size={20} className="text-blue-500" />}
+          icon={<Wallet size={18} className="text-blue-500" />}
           iconBackground="bg-blue-100 dark:bg-blue-800"
+          compact
         />
         
         <MetricsCard
           title="Total de Dízimos"
           value={financialMetrics.tithesTotal}
           prefix="R$ "
-          icon={<TrendingUp size={20} className="text-amber-500" />}
+          icon={<TrendingUp size={18} className="text-amber-500" />}
           iconBackground="bg-amber-100 dark:bg-amber-800"
+          compact
         />
       </div>
 
       {/* Charts and Reports Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div>
           <ChartComponent
             title="Receitas e Despesas"
             description="Comparativo dos últimos 6 meses"
             chartData={financeChartData}
             chartType="line"
+            height={300}
           />
         </div>
         
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 sm:p-6">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-3 sm:mb-4">
             Relatórios Financeiros
           </h3>
           
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {reportTypes.map((report, index) => (
               <div 
                 key={index}
-                className="flex items-center p-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                className="flex items-center p-2 sm:p-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
               >
-                <div className="p-2 rounded-full bg-primary-100 dark:bg-primary-800 text-primary-500 mr-3">
+                <div className="p-1 sm:p-2 rounded-full bg-primary-100 dark:bg-primary-800 text-primary-500 mr-2 sm:mr-3">
                   {report.icon}
                 </div>
-                <span className="flex-1 font-medium text-gray-700 dark:text-gray-200">
+                <span className="flex-1 text-sm sm:text-base font-medium text-gray-700 dark:text-gray-200">
                   {report.name}
                 </span>
                 <Download size={16} className="text-gray-400" />
@@ -188,14 +194,14 @@ const Finance: React.FC = () => {
             ))}
           </div>
           
-          <button className="mt-4 w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <button className="mt-4 w-full px-3 py-2 sm:px-4 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
             Gerar Novo Relatório
           </button>
         </div>
       </div>
 
       {/* Transactions List */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <TransactionList
           transactions={transactions}
           onAddTransaction={handleAddTransaction}
@@ -207,7 +213,7 @@ const Finance: React.FC = () => {
         isOpen={isAddingTransaction}
         onClose={() => setIsAddingTransaction(false)}
         title="Nova Transação"
-        size="lg"
+        size="md"
       >
         <form onSubmit={(e) => {
           e.preventDefault();
@@ -220,8 +226,8 @@ const Finance: React.FC = () => {
             paymentMethod: formData.get('paymentMethod') as Transaction['paymentMethod'],
             memberName: formData.get('memberName') as string,
           });
-        }} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        }} className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 gap-4 sm:gap-6">
             <div>
               <label htmlFor="type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Tipo
@@ -299,7 +305,7 @@ const Finance: React.FC = () => {
               />
             </div>
             
-            <div className="md:col-span-2">
+            <div>
               <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Descrição
               </label>
@@ -311,17 +317,17 @@ const Finance: React.FC = () => {
             </div>
           </div>
           
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
             <button
               type="button"
               onClick={() => setIsAddingTransaction(false)}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="px-3 py-2 sm:px-4 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              className="px-3 py-2 sm:px-4 sm:py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
             >
               Salvar Transação
             </button>

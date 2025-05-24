@@ -142,23 +142,23 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="animate-fade-in p-4 md:p-6">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2 font-display">
+    <div className="animate-fade-in p-4 sm:p-6">
+      <header className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-1 sm:mb-2 font-display">
           Dashboard
         </h1>
-        <p className="text-gray-500 dark:text-gray-400">
+        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
           Visão geral da igreja e métricas importantes
         </p>
       </header>
 
       {/* Cards principais com métricas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 mb-6 sm:mb-8">
         <MetricCard 
           title="Membros Ativos"
           value={metrics.activeMembers}
           change="+12% este mês"
-          icon={<Users size={24} />}
+          icon={<Users className="w-5 h-5 sm:w-6 sm:h-6" />}
           iconBg="bg-primary-100 dark:bg-primary-800"
           iconColor="text-primary-600 dark:text-primary-300"
           trend="up"
@@ -168,7 +168,7 @@ const Dashboard: React.FC = () => {
           title="Eventos Próximos"
           value={metrics.upcomingEvents}
           change="3 esta semana"
-          icon={<CalendarDays size={24} />}
+          icon={<CalendarDays className="w-5 h-5 sm:w-6 sm:h-6" />}
           iconBg="bg-blue-100 dark:bg-blue-800"
           iconColor="text-blue-600 dark:text-blue-300"
         />
@@ -177,7 +177,7 @@ const Dashboard: React.FC = () => {
           title="Receita Mensal"
           value={`R$ ${metrics.monthlyRevenue.toLocaleString('pt-BR')}`}
           change="-3% em relação a agosto"
-          icon={<PiggyBank size={24} />}
+          icon={<PiggyBank className="w-5 h-5 sm:w-6 sm:h-6" />}
           iconBg="bg-yellow-100 dark:bg-yellow-800"
           iconColor="text-yellow-600 dark:text-yellow-300"
           trend="down"
@@ -187,7 +187,7 @@ const Dashboard: React.FC = () => {
           title="Cestas Básicas"
           value={`${metrics.foodBaskets}/50`}
           change="90% da meta"
-          icon={<Package size={24} />}
+          icon={<Package className="w-5 h-5 sm:w-6 sm:h-6" />}
           iconBg="bg-amber-100 dark:bg-amber-800"
           iconColor="text-amber-600 dark:text-amber-300"
           trend="up"
@@ -195,7 +195,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Gráficos */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <ChartCard 
           title="Frequência nos Cultos"
           description="Dados dos últimos 9 meses"
@@ -221,8 +221,8 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Metas e Ministérios */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6">
+        <div>
           <GoalsCard />
         </div>
         
@@ -267,15 +267,15 @@ const MetricCard: React.FC<MetricCardProps> = ({
   
   return (
     <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="flex items-center gap-4 p-6">
-        <div className={`p-3 rounded-full ${iconBg} ${iconColor}`}>
+      <CardContent className="flex items-center gap-3 sm:gap-4 p-4 sm:p-6">
+        <div className={`p-2 sm:p-3 rounded-full ${iconBg} ${iconColor}`}>
           {icon}
         </div>
         <div>
-          <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
+          <div className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">
             {title}
           </div>
-          <div className="text-2xl font-bold text-gray-800 dark:text-white">
+          <div className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white">
             {value}
           </div>
           <div className={`flex items-center text-xs ${trendColor} mt-1`}>
@@ -296,14 +296,14 @@ interface ChartCardProps {
 
 const ChartCard: React.FC<ChartCardProps> = ({ title, description, chart }) => (
   <Card>
-    <CardContent className="p-6">
+    <CardContent className="p-4 sm:p-6">
       <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1">
         {title}
       </h3>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
         {description}
       </p>
-      <div className="h-[300px]">
+      <div className="h-[250px] sm:h-[300px]">
         {chart}
       </div>
     </CardContent>
@@ -322,30 +322,39 @@ const LineChartComponent: React.FC<LineChartComponentProps> = ({
   tooltipFormatter
 }) => (
   <ResponsiveContainer width="100%" height="100%">
-    <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+    <LineChart 
+      data={data} 
+      margin={{ top: 5, right: 10, left: -20, bottom: 5 }}
+    >
       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
       <XAxis 
         dataKey="name" 
-        tick={{ fill: '#6b7280' }} 
+        tick={{ fill: '#6b7280', fontSize: 12 }} 
         axisLine={false}
       />
       <YAxis 
-        tick={{ fill: '#6b7280' }} 
+        tick={{ fill: '#6b7280', fontSize: 12 }} 
         axisLine={false}
+        width={30}
       />
       <Tooltip 
         formatter={(value) => [
           tooltipFormatter ? tooltipFormatter(Number(value)) : value, 
           "Valor"
         ]}
+        contentStyle={{
+          fontSize: '12px',
+          borderRadius: '8px',
+          padding: '6px 10px'
+        }}
       />
       <Line
         type="monotone"
         dataKey="value"
         stroke={color}
         strokeWidth={2}
-        dot={{ r: 4 }}
-        activeDot={{ r: 6 }}
+        dot={{ r: 3 }}
+        activeDot={{ r: 5 }}
       />
     </LineChart>
   </ResponsiveContainer>
@@ -369,8 +378,8 @@ const PieChartComponent: React.FC<PieChartComponentProps> = ({
         cx="50%"
         cy="50%"
         labelLine={false}
-        outerRadius={80}
-        innerRadius={40}
+        outerRadius={70}
+        innerRadius={30}
         paddingAngle={5}
         dataKey="value"
         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
@@ -379,10 +388,17 @@ const PieChartComponent: React.FC<PieChartComponentProps> = ({
           <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
         ))}
       </Pie>
-      <Tooltip formatter={(value) => [
-        tooltipFormatter ? tooltipFormatter(Number(value)) : value, 
-        "Total"
-      ]} />
+      <Tooltip 
+        formatter={(value) => [
+          tooltipFormatter ? tooltipFormatter(Number(value)) : value, 
+          "Total"
+        ]}
+        contentStyle={{
+          fontSize: '12px',
+          borderRadius: '8px',
+          padding: '6px 10px'
+        }}
+      />
     </PieChart>
   </ResponsiveContainer>
 );
@@ -397,23 +413,23 @@ const GoalsCard: React.FC = () => {
 
   return (
     <Card>
-      <CardContent className="p-6">
+      <CardContent className="p-4 sm:p-6">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1">
           Metas do Mês
         </h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
           Progresso atual
         </p>
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {goals.map((goal, index) => {
             const progress = Math.round((goal.current / goal.target) * 100);
             return (
-              <div key={index} className="space-y-2">
+              <div key={index} className="space-y-1 sm:space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                     {goal.name}
                   </span>
-                  <span className="text-sm font-medium">
+                  <span className="text-xs sm:text-sm font-medium">
                     {goal.isCurrency 
                       ? `R$ ${goal.current.toLocaleString('pt-BR')}/${goal.target.toLocaleString('pt-BR')}`
                       : `${goal.current}/${goal.target}`}
@@ -421,7 +437,7 @@ const GoalsCard: React.FC = () => {
                 </div>
                 <Progress 
                   value={progress} 
-                  className="h-2"
+                  className="h-1 sm:h-2"
                   indicatorColor={progress > 75 ? "bg-green-500" : progress > 50 ? "bg-yellow-500" : "bg-red-500"}
                 />
               </div>
