@@ -1,11 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  DollarSign, CreditCard, TrendingUp, Wallet,
-  PieChart, BarChart2, Download, Filter
+import {
+  BarChart2,
+  CreditCard,
+  DollarSign,
+  Download,
+  PieChart,
+  TrendingUp, Wallet
 } from 'lucide-react';
-import TransactionList from '../components/finance/TransactionList';
-import MetricsCard from '../components/dashboard/MetricsCard';
+import React, { useEffect, useState } from 'react';
 import ChartComponent from '../components/dashboard/ChartComponent';
+import MetricsCard from '../components/dashboard/MetricsCard';
+import TransactionList from '../components/finance/TransactionList';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Modal from '../components/ui/Modal';
 import { useSupabase } from '../hooks/useSupabase';
 import { Transaction } from '../types';
@@ -17,20 +22,19 @@ const Finance: React.FC = () => {
   const { getTransactions, addTransaction } = useSupabase();
 
   useEffect(() => {
-    loadTransactions();
-  }, []);
-
-  const loadTransactions = async () => {
-    try {
-      setIsLoading(true);
-      const data = await getTransactions();
-      setTransactions(data);
-    } catch (error) {
-      console.error('Erro ao carregar transações:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getTransactions();
+        setTransactions(data);
+      } catch (error) {
+        console.error('Error loading transactions:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, [getTransactions]);
 
   const handleAddTransaction = () => {
     setIsAddingTransaction(true);
@@ -48,35 +52,28 @@ const Finance: React.FC = () => {
         description: data.description,
         payment_method: data.paymentMethod as 'cash' | 'check' | 'card' | 'pix' | 'transfer',
       });
-      await loadTransactions();
+      const updatedTransactions = await getTransactions();
+      setTransactions(updatedTransactions);
       setIsAddingTransaction(false);
     } catch (error) {
-      console.error('Erro ao adicionar transação:', error);
+      console.error('Error adding transaction:', error);
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-      </div>
-    );
-  }
-
   // Calculate financial metrics
-  const totalRevenue = transactions
-    .filter(t => t.type !== 'expense')
-    .reduce((sum, t) => sum + Number(t.amount), 0);
-  
-  const totalExpenses = transactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + Number(t.amount), 0);
-  
-  const balance = totalRevenue - totalExpenses;
-  
-  const tithesTotal = transactions
-    .filter(t => t.type === 'tithe')
-    .reduce((sum, t) => sum + Number(t.amount), 0);
+  const financialMetrics = {
+    totalRevenue: transactions
+      .filter(t => t.type !== 'expense')
+      .reduce((sum, t) => sum + Number(t.amount), 0),
+    totalExpenses: transactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => sum + Number(t.amount), 0),
+    balance: 0, // Will be calculated below
+    tithesTotal: transactions
+      .filter(t => t.type === 'tithe')
+      .reduce((sum, t) => sum + Number(t.amount), 0)
+  };
+  financialMetrics.balance = financialMetrics.totalRevenue - financialMetrics.totalExpenses;
 
   // Prepare chart data
   const financeChartData = {
@@ -97,51 +94,68 @@ const Finance: React.FC = () => {
     ],
   };
 
+  const reportTypes = [
+    { name: 'Relatório Mensal', icon: <BarChart2 size={18} /> },
+    { name: 'Relatório de Dízimos', icon: <PieChart size={18} /> },
+    { name: 'Relatório Anual', icon: <BarChart2 size={18} /> },
+    { name: 'Relatório de Categorias', icon: <PieChart size={18} /> },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
   return (
-    <div className="animate-fade-in">
-      <div className="mb-6">
-        <h1 className="text-3xl font-display font-bold text-gray-800 dark:text-white mb-2">
+    <div className="animate-fade-in p-4 md:p-6">
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
           Finanças
         </h1>
         <p className="text-gray-500 dark:text-gray-400">
-          Gerencie receitas, despesas e relatórios financeiros.
+          Gerencie receitas, despesas e relatórios financeiros
         </p>
-      </div>
-      
+      </header>
+
+      {/* Financial Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <MetricsCard
           title="Receitas Totais"
-          value={totalRevenue}
+          value={financialMetrics.totalRevenue}
           prefix="R$ "
-          icon={<DollarSign size={20} className="text-success-500" />}
+          icon={<DollarSign size={20} className="text-green-500" />}
           iconBackground="bg-green-100 dark:bg-green-800"
         />
         
         <MetricsCard
           title="Despesas Totais"
-          value={totalExpenses}
+          value={financialMetrics.totalExpenses}
           prefix="R$ "
-          icon={<CreditCard size={20} className="text-danger-500" />}
+          icon={<CreditCard size={20} className="text-red-500" />}
           iconBackground="bg-red-100 dark:bg-red-800"
         />
         
         <MetricsCard
           title="Saldo Atual"
-          value={balance}
+          value={financialMetrics.balance}
           prefix="R$ "
-          icon={<Wallet size={20} className="text-info-500" />}
+          icon={<Wallet size={20} className="text-blue-500" />}
           iconBackground="bg-blue-100 dark:bg-blue-800"
         />
         
         <MetricsCard
           title="Total de Dízimos"
-          value={tithesTotal}
+          value={financialMetrics.tithesTotal}
           prefix="R$ "
-          icon={<TrendingUp size={20} className="text-secondary-500" />}
-          iconBackground="bg-secondary-100 dark:bg-secondary-800"
+          icon={<TrendingUp size={20} className="text-amber-500" />}
+          iconBackground="bg-amber-100 dark:bg-amber-800"
         />
       </div>
-      
+
+      {/* Charts and Reports Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div className="lg:col-span-2">
           <ChartComponent
@@ -152,21 +166,16 @@ const Finance: React.FC = () => {
           />
         </div>
         
-        <div className="card">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
             Relatórios Financeiros
           </h3>
           
           <div className="space-y-3">
-            {[
-              { name: 'Relatório Mensal', icon: <BarChart2 size={18} /> },
-              { name: 'Relatório de Dízimos', icon: <PieChart size={18} /> },
-              { name: 'Relatório Anual', icon: <BarChart2 size={18} /> },
-              { name: 'Relatório de Categorias', icon: <PieChart size={18} /> },
-            ].map((report, index) => (
+            {reportTypes.map((report, index) => (
               <div 
                 key={index}
-                className="flex items-center p-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                className="flex items-center p-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
               >
                 <div className="p-2 rounded-full bg-primary-100 dark:bg-primary-800 text-primary-500 mr-3">
                   {report.icon}
@@ -179,19 +188,21 @@ const Finance: React.FC = () => {
             ))}
           </div>
           
-          <button className="mt-4 w-full btn btn-outline">
+          <button className="mt-4 w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
             Gerar Novo Relatório
           </button>
         </div>
       </div>
-      
+
+      {/* Transactions List */}
       <div className="mb-6">
         <TransactionList
           transactions={transactions}
           onAddTransaction={handleAddTransaction}
         />
       </div>
-      
+
+      {/* Add Transaction Modal */}
       <Modal
         isOpen={isAddingTransaction}
         onClose={() => setIsAddingTransaction(false)}
@@ -212,13 +223,16 @@ const Finance: React.FC = () => {
         }} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="type" className="form-label">Tipo</label>
+              <label htmlFor="type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Tipo
+              </label>
               <select
                 id="type"
                 name="type"
-                className="form-input"
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
+                <option value="">Selecione um tipo</option>
                 <option value="tithe">Dízimo</option>
                 <option value="offering">Oferta</option>
                 <option value="donation">Doação</option>
@@ -227,12 +241,14 @@ const Finance: React.FC = () => {
             </div>
             
             <div>
-              <label htmlFor="amount" className="form-label">Valor</label>
+              <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Valor
+              </label>
               <input
                 type="number"
                 id="amount"
                 name="amount"
-                className="form-input"
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 min="0"
                 step="0.01"
                 required
@@ -240,24 +256,29 @@ const Finance: React.FC = () => {
             </div>
             
             <div>
-              <label htmlFor="category" className="form-label">Categoria</label>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Categoria
+              </label>
               <input
                 type="text"
                 id="category"
                 name="category"
-                className="form-input"
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
             
             <div>
-              <label htmlFor="paymentMethod" className="form-label">Forma de Pagamento</label>
+              <label htmlFor="paymentMethod" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Forma de Pagamento
+              </label>
               <select
                 id="paymentMethod"
                 name="paymentMethod"
-                className="form-input"
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               >
+                <option value="">Selecione uma forma</option>
                 <option value="cash">Dinheiro</option>
                 <option value="check">Cheque</option>
                 <option value="card">Cartão</option>
@@ -267,38 +288,42 @@ const Finance: React.FC = () => {
             </div>
             
             <div>
-              <label htmlFor="memberName" className="form-label">Nome do Membro</label>
+              <label htmlFor="memberName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Nome do Membro (opcional)
+              </label>
               <input
                 type="text"
                 id="memberName"
                 name="memberName"
-                className="form-input"
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             
             <div className="md:col-span-2">
-              <label htmlFor="description" className="form-label">Descrição</label>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Descrição
+              </label>
               <textarea
                 id="description"
                 name="description"
-                className="form-input h-24"
+                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 h-24"
               />
             </div>
           </div>
           
-          <div className="flex justify-end space-x-3">
+          <div className="flex justify-end space-x-3 pt-4">
             <button
               type="button"
               onClick={() => setIsAddingTransaction(false)}
-              className="btn btn-outline"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="btn btn-primary"
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
             >
-              Salvar
+              Salvar Transação
             </button>
           </div>
         </form>

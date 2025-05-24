@@ -23,47 +23,108 @@ import {
 } from "recharts";
 import { useSupabase } from "../hooks/useSupabase";
 
+// Cores consistentes para os gráficos
 const COLORS = ["#003B4D", "#D4AF37", "#185A6D", "#B39020"];
+
+interface DashboardMetrics {
+  activeMembers: number;
+  upcomingEvents: number;
+  monthlyRevenue: number;
+  foodBaskets: number;
+}
+
+// Componente de Loading Spinner simples
+const LoadingSpinner = ({ size = "md" }: { size?: "sm" | "md" | "lg" }) => {
+  const sizes = {
+    sm: "h-6 w-6",
+    md: "h-8 w-8",
+    lg: "h-12 w-12"
+  };
+
+  return (
+    <div className={`animate-spin rounded-full ${sizes[size]} border-t-2 border-b-2 border-primary-500`}></div>
+  );
+};
 
 const Dashboard: React.FC = () => {
   const { getMembers, getTransactions } = useSupabase();
-  const [user] = useState({ name: "Admin" });
-  const [members, setMembers] = useState<any[]>([]);
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [metrics, setMetrics] = useState<DashboardMetrics>({
+    activeMembers: 0,
+    upcomingEvents: 0,
+    monthlyRevenue: 0,
+    foodBaskets: 0
+  });
   const [loading, setLoading] = useState(true);
+  const [attendanceData, setAttendanceData] = useState<{name: string, value: number}[]>([]);
+  const [offeringData, setOfferingData] = useState<{name: string, value: number}[]>([]);
 
   useEffect(() => {
-    async function fetchData() {
+    const fetchData = async () => {
       setLoading(true);
-      setMembers(await getMembers());
-      setTransactions(await getTransactions());
-      setLoading(false);
-    }
+      try {
+        // Simulando chamadas assíncronas
+        const [members, transactions] = await Promise.all([
+          getMembers(),
+          getTransactions()
+        ]);
+
+        // Processar dados para métricas
+        const activeMembers = members.filter(m => m.status === 'active').length;
+        const monthlyRevenue = transactions
+          .filter(t => t.type !== "expense")
+          .reduce((sum, t) => sum + Number(t.amount), 0);
+        
+        // Gerar dados para gráficos
+        const months = generateMonthLabels();
+        const attendance = generateAttendanceData(months);
+        const offerings = generateOfferingData(months, transactions);
+
+        setMetrics({
+          activeMembers,
+          upcomingEvents: 8, // Valor mockado - substituir por chamada real
+          monthlyRevenue,
+          foodBaskets: 45 // Valor mockado - substituir por chamada real
+        });
+        
+        setAttendanceData(attendance);
+        setOfferingData(offerings);
+      } catch (error) {
+        console.error("Error loading dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchData();
   }, [getMembers, getTransactions]);
 
-  // Gráficos
-  const months = Array.from({ length: 9 }, (_, i) => {
-    const date = new Date();
-    date.setMonth(date.getMonth() - (8 - i));
-    return date.toLocaleString("pt-BR", { month: "short" });
-  });
+  const generateMonthLabels = () => {
+    return Array.from({ length: 9 }, (_, i) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - (8 - i));
+      return date.toLocaleString("pt-BR", { month: "short" });
+    });
+  };
 
-  const attendanceData = months.map((name, i) => ({
-    name,
-    value: Math.floor(Math.random() * 100) + 140,
-  }));
+  const generateAttendanceData = (months: string[]) => {
+    return months.map(name => ({
+      name,
+      value: Math.floor(Math.random() * 100) + 140 // Dados mockados
+    }));
+  };
 
-  const offeringData = months.map((name, i) => ({
-    name,
-    value: transactions
-      .filter((t) => t.category === "Dízimo" || t.category === "Oferta")
-      .filter((t) => {
-        const d = new Date(t.date);
-        return d.getMonth() === new Date().getMonth() - (8 - i);
-      })
-      .reduce((sum, t) => sum + Number(t.amount), 0),
-  }));
+  const generateOfferingData = (months: string[], transactions: any[]) => {
+    return months.map((name, i) => ({
+      name,
+      value: transactions
+        .filter(t => t.category === "Dízimo" || t.category === "Oferta")
+        .filter(t => {
+          const d = new Date(t.date);
+          return d.getMonth() === new Date().getMonth() - (8 - i);
+        })
+        .reduce((sum, t) => sum + Number(t.amount), 0)
+    }));
+  };
 
   const ministryData = [
     { name: "Louvor", value: 35 },
@@ -72,234 +133,303 @@ const Dashboard: React.FC = () => {
     { name: "Missões", value: 15 },
   ];
 
-  // Layout do painel
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
   return (
-    <div className="animate-fade-in">
-      <div className="mb-6">
+    <div className="animate-fade-in p-4 md:p-6">
+      <header className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2 font-display">
           Dashboard
         </h1>
         <p className="text-gray-500 dark:text-gray-400">
-          Visão geral da igreja e métricas importantes.
+          Visão geral da igreja e métricas importantes
         </p>
-      </div>
+      </header>
 
-      {/* Cards principais */}
+      {/* Cards principais com métricas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="shadow-none border-0 bg-gradient-to-br from-primary-100 to-primary-300 dark:from-primary-900 dark:to-primary-800">
-          <CardContent className="flex items-center gap-4 py-6">
-            <div className="p-3 rounded-full bg-primary-200 dark:bg-primary-700">
-              <Users size={32} className="text-primary-700 dark:text-primary-200" />
-            </div>
-            <div>
-              <div className="text-sm text-primary-900 dark:text-primary-200 font-medium">
-                Membros Ativos
-              </div>
-              <div className="text-2xl font-bold text-primary-900 dark:text-primary-100">
-                {members.length}
-              </div>
-              <div className="flex items-center text-xs text-green-700 mt-1">
-                <ChevronUp size={14} />
-                <span>12% este mês</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-none border-0 bg-gradient-to-br from-blue-100 to-blue-300 dark:from-blue-900 dark:to-blue-800">
-          <CardContent className="flex items-center gap-4 py-6">
-            <div className="p-3 rounded-full bg-blue-200 dark:bg-blue-700">
-              <CalendarDays size={32} className="text-blue-700 dark:text-blue-200" />
-            </div>
-            <div>
-              <div className="text-sm text-blue-900 dark:text-blue-200 font-medium">
-                Eventos Próximos
-              </div>
-              <div className="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                8
-              </div>
-              <div className="flex items-center text-xs text-blue-700 mt-1">
-                <CalendarDays size={14} className="mr-1" />
-                <span>3 esta semana</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-none border-0 bg-gradient-to-br from-yellow-100 to-yellow-300 dark:from-yellow-900 dark:to-yellow-800">
-          <CardContent className="flex items-center gap-4 py-6">
-            <div className="p-3 rounded-full bg-yellow-200 dark:bg-yellow-700">
-              <PiggyBank size={32} className="text-yellow-700 dark:text-yellow-200" />
-            </div>
-            <div>
-              <div className="text-sm text-yellow-900 dark:text-yellow-200 font-medium">
-                Receita Mensal
-              </div>
-              <div className="text-2xl font-bold text-yellow-900 dark:text-yellow-100">
-                R${" "}
-                {transactions
-                  .filter((t) => t.type !== "expense")
-                  .reduce((sum, t) => sum + Number(t.amount), 0)
-                  .toLocaleString("pt-BR")}
-              </div>
-              <div className="flex items-center text-xs text-red-700 mt-1">
-                <ChevronDown size={14} />
-                <span>3% em relação a agosto</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-none border-0 bg-gradient-to-br from-amber-100 to-amber-300 dark:from-amber-900 dark:to-amber-800">
-          <CardContent className="flex items-center gap-4 py-6">
-            <div className="p-3 rounded-full bg-amber-200 dark:bg-amber-700">
-              <Package size={32} className="text-amber-700 dark:text-amber-200" />
-            </div>
-            <div>
-              <div className="text-sm text-amber-900 dark:text-amber-200 font-medium">
-                Cestas Básicas Distribuídas
-              </div>
-              <div className="text-2xl font-bold text-amber-900 dark:text-amber-100">
-                45/50
-              </div>
-              <div className="flex items-center text-xs text-amber-700 mt-1">
-                <ChevronUp size={14} />
-                <span>90% da meta</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <MetricCard 
+          title="Membros Ativos"
+          value={metrics.activeMembers}
+          change="+12% este mês"
+          icon={<Users size={24} />}
+          iconBg="bg-primary-100 dark:bg-primary-800"
+          iconColor="text-primary-600 dark:text-primary-300"
+          trend="up"
+        />
+        
+        <MetricCard 
+          title="Eventos Próximos"
+          value={metrics.upcomingEvents}
+          change="3 esta semana"
+          icon={<CalendarDays size={24} />}
+          iconBg="bg-blue-100 dark:bg-blue-800"
+          iconColor="text-blue-600 dark:text-blue-300"
+        />
+        
+        <MetricCard 
+          title="Receita Mensal"
+          value={`R$ ${metrics.monthlyRevenue.toLocaleString('pt-BR')}`}
+          change="-3% em relação a agosto"
+          icon={<PiggyBank size={24} />}
+          iconBg="bg-yellow-100 dark:bg-yellow-800"
+          iconColor="text-yellow-600 dark:text-yellow-300"
+          trend="down"
+        />
+        
+        <MetricCard 
+          title="Cestas Básicas"
+          value={`${metrics.foodBaskets}/50`}
+          change="90% da meta"
+          icon={<Package size={24} />}
+          iconBg="bg-amber-100 dark:bg-amber-800"
+          iconColor="text-amber-600 dark:text-amber-300"
+          trend="up"
+        />
       </div>
 
-      {/* Gráficos e cards de metas/ministérios - mantém igual ao seu código */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardContent>
-            <div className="mb-2 font-semibold text-lg">Frequência nos Cultos</div>
-            <div className="text-sm text-gray-500 mb-2">Dados dos últimos 9 meses</div>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={attendanceData}
-                  margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#003B4D"
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent>
-            <div className="mb-2 font-semibold text-lg">Dízimos e Ofertas</div>
-            <div className="text-sm text-gray-500 mb-2">Valores em Reais (R$)</div>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={offeringData}
-                  margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip formatter={(value) => [`R$ ${value}`, "Valor"]} />
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#D4AF37"
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Gráficos */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <ChartCard 
+          title="Frequência nos Cultos"
+          description="Dados dos últimos 9 meses"
+          chart={
+            <LineChartComponent 
+              data={attendanceData} 
+              color="#003B4D"
+            />
+          }
+        />
+        
+        <ChartCard 
+          title="Dízimos e Ofertas"
+          description="Valores em Reais (R$)"
+          chart={
+            <LineChartComponent 
+              data={offeringData} 
+              color="#D4AF37"
+              tooltipFormatter={(value) => `R$ ${value}`}
+            />
+          }
+        />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+      {/* Metas e Ministérios */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
-          <Card>
-            <CardContent>
-              <div className="mb-2 font-semibold text-lg">Metas do Mês</div>
-              <div className="text-sm text-gray-500 mb-2">Progresso atual</div>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Novos Membros</span>
-                    <span className="text-sm font-medium">15/20</span>
-                  </div>
-                  <Progress value={75} className="h-2" />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Orçamento Mensal</span>
-                    <span className="text-sm font-medium">R$ 22.450/25.000</span>
-                  </div>
-                  <Progress value={90} className="h-2" />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Participantes em Eventos</span>
-                    <span className="text-sm font-medium">310/400</span>
-                  </div>
-                  <Progress value={78} className="h-2" />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Cestas Básicas Distribuídas</span>
-                    <span className="text-sm font-medium">45/50</span>
-                  </div>
-                  <Progress value={90} className="h-2" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <GoalsCard />
         </div>
-
-        <Card>
-          <CardContent>
-            <div className="mb-2 font-semibold text-lg">Distribuição por Ministérios</div>
-            <div className="text-sm text-gray-500 mb-2">Participação ativa</div>
-            <div className="h-[200px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={ministryData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) =>
-                      `${name} ${(percent * 100).toFixed(0)}%`
-                    }
-                  >
-                    {ministryData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => [`${value} pessoas`, "Total"]} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        
+        <ChartCard 
+          title="Distribuição"
+          description="Participação ativa"
+          chart={
+            <PieChartComponent 
+              data={ministryData}
+              colors={COLORS}
+              tooltipFormatter={(value) => `${value} pessoas`}
+            />
+          }
+        />
       </div>
     </div>
+  );
+};
+
+// Componentes auxiliares para melhor organização
+
+interface MetricCardProps {
+  title: string;
+  value: string | number;
+  change: string;
+  icon: React.ReactNode;
+  iconBg: string;
+  iconColor: string;
+  trend?: 'up' | 'down';
+}
+
+const MetricCard: React.FC<MetricCardProps> = ({ 
+  title, 
+  value, 
+  change, 
+  icon, 
+  iconBg, 
+  iconColor,
+  trend 
+}) => {
+  const trendColor = trend === 'up' ? 'text-green-600' : 'text-red-600';
+  
+  return (
+    <Card className="hover:shadow-md transition-shadow">
+      <CardContent className="flex items-center gap-4 p-6">
+        <div className={`p-3 rounded-full ${iconBg} ${iconColor}`}>
+          {icon}
+        </div>
+        <div>
+          <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            {title}
+          </div>
+          <div className="text-2xl font-bold text-gray-800 dark:text-white">
+            {value}
+          </div>
+          <div className={`flex items-center text-xs ${trendColor} mt-1`}>
+            {trend === 'up' ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            <span>{change}</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+interface ChartCardProps {
+  title: string;
+  description: string;
+  chart: React.ReactNode;
+}
+
+const ChartCard: React.FC<ChartCardProps> = ({ title, description, chart }) => (
+  <Card>
+    <CardContent className="p-6">
+      <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1">
+        {title}
+      </h3>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        {description}
+      </p>
+      <div className="h-[300px]">
+        {chart}
+      </div>
+    </CardContent>
+  </Card>
+);
+
+interface LineChartComponentProps {
+  data: {name: string, value: number}[];
+  color: string;
+  tooltipFormatter?: (value: number) => string;
+}
+
+const LineChartComponent: React.FC<LineChartComponentProps> = ({ 
+  data, 
+  color,
+  tooltipFormatter
+}) => (
+  <ResponsiveContainer width="100%" height="100%">
+    <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+      <XAxis 
+        dataKey="name" 
+        tick={{ fill: '#6b7280' }} 
+        axisLine={false}
+      />
+      <YAxis 
+        tick={{ fill: '#6b7280' }} 
+        axisLine={false}
+      />
+      <Tooltip 
+        formatter={(value) => [
+          tooltipFormatter ? tooltipFormatter(Number(value)) : value, 
+          "Valor"
+        ]}
+      />
+      <Line
+        type="monotone"
+        dataKey="value"
+        stroke={color}
+        strokeWidth={2}
+        dot={{ r: 4 }}
+        activeDot={{ r: 6 }}
+      />
+    </LineChart>
+  </ResponsiveContainer>
+);
+
+interface PieChartComponentProps {
+  data: {name: string, value: number}[];
+  colors: string[];
+  tooltipFormatter?: (value: number) => string;
+}
+
+const PieChartComponent: React.FC<PieChartComponentProps> = ({ 
+  data, 
+  colors,
+  tooltipFormatter
+}) => (
+  <ResponsiveContainer width="100%" height="100%">
+    <PieChart>
+      <Pie
+        data={data}
+        cx="50%"
+        cy="50%"
+        labelLine={false}
+        outerRadius={80}
+        innerRadius={40}
+        paddingAngle={5}
+        dataKey="value"
+        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+      >
+        {data.map((entry, index) => (
+          <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+        ))}
+      </Pie>
+      <Tooltip formatter={(value) => [
+        tooltipFormatter ? tooltipFormatter(Number(value)) : value, 
+        "Total"
+      ]} />
+    </PieChart>
+  </ResponsiveContainer>
+);
+
+const GoalsCard: React.FC = () => {
+  const goals = [
+    { name: "Novos Membros", current: 15, target: 20 },
+    { name: "Orçamento Mensal", current: 22450, target: 25000, isCurrency: true },
+    { name: "Participantes", current: 310, target: 400 },
+    { name: "Cestas Básicas Distribuídas", current: 45, target: 50 }
+  ];
+
+  return (
+    <Card>
+      <CardContent className="p-6">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1">
+          Metas do Mês
+        </h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          Progresso atual
+        </p>
+        <div className="space-y-4">
+          {goals.map((goal, index) => {
+            const progress = Math.round((goal.current / goal.target) * 100);
+            return (
+              <div key={index} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {goal.name}
+                  </span>
+                  <span className="text-sm font-medium">
+                    {goal.isCurrency 
+                      ? `R$ ${goal.current.toLocaleString('pt-BR')}/${goal.target.toLocaleString('pt-BR')}`
+                      : `${goal.current}/${goal.target}`}
+                  </span>
+                </div>
+                <Progress 
+                  value={progress} 
+                  className="h-2"
+                  indicatorColor={progress > 75 ? "bg-green-500" : progress > 50 ? "bg-yellow-500" : "bg-red-500"}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

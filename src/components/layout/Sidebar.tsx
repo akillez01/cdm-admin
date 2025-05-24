@@ -83,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className="flex items-center">
               <Church size={26} className="text-secondary-400" />
               {!isMinimized && (
-                <h1 className="ml-3 text-xl font-bold truncate">IgrejaApp</h1>
+                <h1 className="ml-3 text-xl font-bold truncate">Céu das Matas</h1>
               )}
             </div>
             

@@ -1,35 +1,29 @@
+import { Moon, Sun } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { Sun, Moon } from 'lucide-react';
 
-const ThemeToggle: React.FC = () => {
-  const [darkMode, setDarkMode] = useState(() => {
-    // Check for saved theme preference or default to system preference
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-      return localStorage.getItem('theme') === 'dark';
-    }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
+const ThemeToggle: React.FC<{ className?: string }> = ({ className = '' }) => {
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    // Update HTML class when theme changes
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setDarkMode(savedTheme ? savedTheme === 'dark' : prefersDark);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      document.documentElement.classList.toggle('dark', darkMode);
+      localStorage.setItem('theme', darkMode ? 'dark' : 'light');
     }
   }, [darkMode]);
 
-  const toggleTheme = () => {
-    setDarkMode(!darkMode);
-  };
-
   return (
     <button
-      onClick={toggleTheme}
-      className="p-2 rounded-md text-gray-600 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
-      aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+      onClick={() => setDarkMode(!darkMode)}
+      className={`p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ${className}`}
+      aria-label={darkMode ? 'Alternar para modo claro' : 'Alternar para modo escuro'}
     >
       {darkMode ? <Sun size={20} /> : <Moon size={20} />}
     </button>

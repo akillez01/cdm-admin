@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Calendar, MapPin, Users, Clock 
+import {
+  Calendar,
+  Clock,
+  MapPin, Users
 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import EventList from '../components/events/EventList';
 import Modal from '../components/ui/Modal';
-import { Event } from '../types';
 import { useSupabase } from '../hooks/useSupabase';
+import { Event } from '../types';
 
 const Events: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -272,10 +274,10 @@ const Events: React.FC = () => {
             <div>
               <label htmlFor="startDate" className="form-label">Data de Início</label>
               <input
-                type="datetime-local"
-                id="startDate"
-                name="startDate"
-                defaultValue={selectedEvent?.startDate}
+                type="text"
+                id="title"
+                name="title"
+                defaultValue={selectedEvent?.title}
                 className="form-input"
                 required
               />
