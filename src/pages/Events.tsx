@@ -274,10 +274,10 @@ const Events: React.FC = () => {
             <div>
               <label htmlFor="startDate" className="form-label">Data de Início</label>
               <input
-                type="text"
-                id="title"
-                name="title"
-                defaultValue={selectedEvent?.title}
+                type="datetime-local"
+                id="startDate"
+                name="startDate"
+                defaultValue={selectedEvent?.startDate ? new Date(selectedEvent.startDate).toISOString().slice(0,16) : ''}
                 className="form-input"
                 required
               />
@@ -289,7 +289,7 @@ const Events: React.FC = () => {
                 type="datetime-local"
                 id="endDate"
                 name="endDate"
-                defaultValue={selectedEvent?.endDate}
+                defaultValue={selectedEvent?.endDate ? new Date(selectedEvent.endDate).toISOString().slice(0,16) : ''}
                 className="form-input"
                 required
               />

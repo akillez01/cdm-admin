@@ -22,6 +22,7 @@ import {
   YAxis,
 } from "recharts";
 import { useSupabase } from "../hooks/useSupabase";
+import { Member } from '../types';
 
 // Cores consistentes para os gráficos
 const COLORS = ["#003B4D", "#D4AF37", "#185A6D", "#B39020"];
@@ -47,7 +48,8 @@ const LoadingSpinner = ({ size = "md" }: { size?: "sm" | "md" | "lg" }) => {
 };
 
 const Dashboard: React.FC = () => {
-  const { getMembers, getTransactions } = useSupabase();
+  const { getMembers, getTransactions, getInventory, supabase } = useSupabase();
+  const [members, setMembers] = useState<Member[]>([]);
   const [metrics, setMetrics] = useState<DashboardMetrics>({
     activeMembers: 0,
     upcomingEvents: 0,
@@ -60,32 +62,45 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       try {
-        // Simulando chamadas assíncronas
-        const [members, transactions] = await Promise.all([
-          getMembers(),
-          getTransactions()
+        setLoading(true);
+        const membersData = await getMembers();
+        setMembers(membersData);
+
+        // Busca membros, transações e inventário
+        const [transactions, inventory] = await Promise.all([
+          getTransactions(),
+          getInventory()
         ]);
 
+        // Buscar eventos futuros
+        const { data: eventsData, error: eventsError } = await supabase
+          .from('events')
+          .select('*')
+          .gte('start_date', new Date().toISOString());
+        if (eventsError) throw eventsError;
+
         // Processar dados para métricas
-        const activeMembers = members.filter(m => m.status === 'active').length;
+        const activeMembers = membersData.filter(m => m.status === 'active').length;
         const monthlyRevenue = transactions
-          .filter(t => t.type !== "expense")
-          .reduce((sum, t) => sum + Number(t.amount), 0);
-        
+          .filter((t: Database['public']['Tables']['transactions']['Row']) => t.type !== "expense")
+          .reduce((sum: number, t: Database['public']['Tables']['transactions']['Row']) => sum + Number(t.amount), 0);
+        // Contar cestas básicas no inventário
+        const foodBaskets = (inventory as Database['public']['Tables']['inventory_items']['Row'][])
+          .filter(item => item.category?.toLowerCase().includes('cesta'))
+          .reduce((sum, item) => sum + (item.quantity || 0), 0);
+
         // Gerar dados para gráficos
         const months = generateMonthLabels();
         const attendance = generateAttendanceData(months);
-        const offerings = generateOfferingData(months, transactions);
+        const offerings = generateOfferingData(months, transactions as Database['public']['Tables']['transactions']['Row'][]);
 
         setMetrics({
           activeMembers,
-          upcomingEvents: 8, // Valor mockado - substituir por chamada real
+          upcomingEvents: eventsData ? eventsData.length : 0,
           monthlyRevenue,
-          foodBaskets: 45 // Valor mockado - substituir por chamada real
+          foodBaskets
         });
-        
         setAttendanceData(attendance);
         setOfferingData(offerings);
       } catch (error) {
@@ -94,9 +109,8 @@ const Dashboard: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchData();
-  }, [getMembers, getTransactions]);
+  }, [getMembers, getTransactions, getInventory, supabase]);
 
   const generateMonthLabels = () => {
     return Array.from({ length: 9 }, (_, i) => {
@@ -113,7 +127,7 @@ const Dashboard: React.FC = () => {
     }));
   };
 
-  const generateOfferingData = (months: string[], transactions: any[]) => {
+  const generateOfferingData = (months: string[], transactions: Database['public']['Tables']['transactions']['Row'][]) => {
     return months.map((name, i) => ({
       name,
       value: transactions
@@ -225,18 +239,47 @@ const Dashboard: React.FC = () => {
         <div>
           <GoalsCard />
         </div>
-        
-        <ChartCard 
-          title="Distribuição"
-          description="Participação ativa"
-          chart={
-            <PieChartComponent 
-              data={ministryData}
-              colors={COLORS}
-              tooltipFormatter={(value) => `${value} pessoas`}
-            />
-          }
-        />
+        {/* Painel de Informações da Igreja */}
+        <div className="card">
+          <h2 className="text-xl font-bold mb-4 text-primary-700 dark:text-primary-200 flex items-center">
+            <span className="mr-2">Administração da Igreja</span>
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-2 text-primary-600 dark:text-primary-300">Equipe Administrativa</h3>
+              <ul className="space-y-2">
+                {/* Exemplo: buscar membros admins do banco */}
+                {members.filter(m => m.status === 'active' && m.ministries?.includes('Administração')).map(admin => (
+                  <li key={admin.id} className="flex items-center space-x-3">
+                    <img src={admin.photo || 'https://randomuser.me/api/portraits/men/1.jpg'} alt={admin.firstName} className="w-10 h-10 rounded-full object-cover" />
+                    <div>
+                      <div className="font-medium text-gray-800 dark:text-white">{admin.firstName} {admin.lastName}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-300">{admin.email}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-300">Cargo: {admin.skills?.join(', ') || 'Administrador'}</div>
+                    </div>
+                  </li>
+                ))}
+                {members.filter(m => m.status === 'active' && m.ministries?.includes('Administração')).length === 0 && (
+                  <li className="text-gray-500 dark:text-gray-400">Nenhum membro administrativo cadastrado.</li>
+                )}
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-2 text-primary-600 dark:text-primary-300">Contatos</h3>
+              <div className="space-y-2">
+                <div>
+                  <span className="font-medium">Telefone:</span> (11) 99999-9999
+                </div>
+                <div>
+                  <span className="font-medium">Email:</span> contato@igrejaexemplo.com
+                </div>
+                <div>
+                  <span className="font-medium">Endereço:</span> Rua Exemplo, 123 - Centro, São Paulo/SP
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

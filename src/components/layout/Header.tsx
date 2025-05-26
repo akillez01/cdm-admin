@@ -1,5 +1,8 @@
+import { User } from '@supabase/supabase-js';
 import { Bell, Menu, Search } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSupabase } from '../../hooks/useSupabase';
+import AdminProfileModal from '../ui/AdminProfileModal';
 import ThemeToggle from '../ui/ThemeToggle';
 
 interface HeaderProps {
@@ -9,6 +12,15 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const { supabase } = useSupabase();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(res => {
+      if (res.data?.user) setUser(res.data.user);
+    });
+  }, [supabase]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -65,19 +77,25 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar, sidebarOpen }) => {
           <ThemeToggle />
           
           <div className="flex items-center ml-3">
-            <button 
+            <button
               className="flex items-center space-x-2 focus:outline-none"
               aria-label="Perfil do usuário"
+              onClick={() => setShowProfileModal(true)}
             >
               <img
                 className="h-8 w-8 rounded-full object-cover"
-                src="https://randomuser.me/api/portraits/men/1.jpg"
+                src={user?.user_metadata?.avatar_url || 'https://randomuser.me/api/portraits/men/1.jpg'}
                 alt="User avatar"
               />
               <span className="hidden md:block text-sm font-medium text-gray-700 dark:text-gray-200">
-                Admin User
+                {user?.user_metadata?.name || 'Admin User'}
               </span>
             </button>
+            <AdminProfileModal
+              isOpen={showProfileModal}
+              onClose={() => setShowProfileModal(false)}
+              user={user}
+            />
           </div>
         </div>
       </div>
