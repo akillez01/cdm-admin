@@ -1,5 +1,5 @@
+import { ArrowDown, ArrowUp, Plus, Search } from 'lucide-react';
 import React, { useState } from 'react';
-import { Search, Filter, Plus, ArrowUp, ArrowDown } from 'lucide-react';
 import { Transaction } from '../../types';
 
 interface TransactionListProps {
@@ -13,6 +13,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>('all');
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -22,12 +24,25 @@ const TransactionList: React.FC<TransactionListProps> = ({
     const matchesSearch = 
       (transaction.memberName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       transaction.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (transaction.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+      (transaction.description || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      transaction.amount.toString().includes(searchQuery);
     
     const matchesType = typeFilter === 'all' || transaction.type === typeFilter;
+    const matchesCategory = categoryFilter === 'all' || transaction.category === categoryFilter;
+    const matchesPaymentMethod = paymentMethodFilter === 'all' || transaction.paymentMethod === paymentMethodFilter;
     
-    return matchesSearch && matchesType;
+    return matchesSearch && matchesType && matchesCategory && matchesPaymentMethod;
   });
+
+  // Extrair categorias únicas das transações
+  const uniqueCategories = [...new Set(transactions.map(t => t.category))];
+  const paymentMethods = [
+    { value: 'cash', label: 'Dinheiro' },
+    { value: 'check', label: 'Cheque' },
+    { value: 'card', label: 'Cartão' },
+    { value: 'pix', label: 'PIX' },
+    { value: 'transfer', label: 'Transferência' }
+  ];
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -98,12 +113,12 @@ const TransactionList: React.FC<TransactionListProps> = ({
           </button>
         </div>
         
-        <div className="mt-4 flex flex-col md:flex-row gap-4">
+        <div className="mt-4 flex flex-col lg:flex-row gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
-              placeholder="Buscar transações..."
+              placeholder="Buscar por membro, categoria, descrição ou valor..."
               value={searchQuery}
               onChange={handleSearchChange}
               className="form-input pl-10 w-full"
@@ -121,6 +136,36 @@ const TransactionList: React.FC<TransactionListProps> = ({
               <option value="offering">Ofertas</option>
               <option value="donation">Doações</option>
               <option value="expense">Despesas</option>
+            </select>
+          </div>
+
+          <div className="w-full md:w-48">
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="form-input"
+            >
+              <option value="all">Todas as Categorias</option>
+              {uniqueCategories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="w-full md:w-48">
+            <select
+              value={paymentMethodFilter}
+              onChange={(e) => setPaymentMethodFilter(e.target.value)}
+              className="form-input"
+            >
+              <option value="all">Todas as Formas</option>
+              {paymentMethods.map((method) => (
+                <option key={method.value} value={method.value}>
+                  {method.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>

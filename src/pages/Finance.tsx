@@ -11,41 +11,55 @@ import React, { useEffect, useState } from 'react';
 import ChartComponent from '../components/dashboard/ChartComponent';
 import MetricsCard from '../components/dashboard/MetricsCard';
 import TransactionList from '../components/finance/TransactionList';
+import Autocomplete from '../components/ui/Autocomplete';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import Modal from '../components/ui/Modal';
 import { useSupabase } from '../hooks/useSupabase';
-import { Transaction } from '../types';
+import { Member, Transaction } from '../types';
 
 const Finance: React.FC = () => {
   const [isAddingTransaction, setIsAddingTransaction] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { getTransactions, addTransaction } = useSupabase();
+  const [selectedMemberId, setSelectedMemberId] = useState('');
+  const { getTransactions, addTransaction, getMembers } = useSupabase();
 
   useEffect(() => {
     const loadData = async () => {
       try {
         setIsLoading(true);
-        const data = await getTransactions();
-        setTransactions(data);
+        const [transactionsData, membersData] = await Promise.all([
+          getTransactions(),
+          getMembers()
+        ]);
+        setTransactions(transactionsData);
+        setMembers(membersData);
       } catch (error) {
-        console.error('Error loading transactions:', error);
+        console.error('Error loading data:', error);
       } finally {
         setIsLoading(false);
       }
     };
     loadData();
-  }, [getTransactions]);
+  }, [getTransactions, getMembers]);
 
   const handleAddTransaction = () => {
     setIsAddingTransaction(true);
+    setSelectedMemberId(''); // Reset selected member when opening modal
+  };
+
+  const handleCloseModal = () => {
+    setIsAddingTransaction(false);
+    setSelectedMemberId(''); // Reset selected member when closing modal
   };
 
   const handleSubmitTransaction = async (data: Partial<Transaction>) => {
     try {
+      const selectedMember = members.find(m => m.id === selectedMemberId);
       await addTransaction({
-        member_id: data.memberId,
-        member_name: data.memberName,
+        member_id: selectedMemberId || undefined,
+        member_name: selectedMember ? `${selectedMember.firstName} ${selectedMember.lastName}` : data.memberName,
         type: data.type as 'tithe' | 'offering' | 'donation' | 'expense',
         amount: data.amount!,
         date: new Date().toISOString(),
@@ -56,6 +70,7 @@ const Finance: React.FC = () => {
       const updatedTransactions = await getTransactions();
       setTransactions(updatedTransactions);
       setIsAddingTransaction(false);
+      setSelectedMemberId('');
     } catch (error) {
       console.error('Error adding transaction:', error);
     }
@@ -95,9 +110,16 @@ const Finance: React.FC = () => {
     ],
   };
 
+  // Prepare member options for autocomplete
+  const memberOptions = members.map(member => ({
+    id: member.id,
+    label: `${member.firstName} ${member.lastName}`,
+    value: member.id
+  }));
+
   const reportTypes = [
     { name: 'Relatório Mensal', icon: <BarChart2 size={18} /> },
-    { name: 'Relatório de Dízimos', icon: <PieChart size={18} /> },
+    { name: 'Relatório de Mensalidades', icon: <PieChart size={18} /> },
     { name: 'Relatório Anual', icon: <BarChart2 size={18} /> },
     { name: 'Relatório de Categorias', icon: <PieChart size={18} /> },
   ];
@@ -129,7 +151,6 @@ const Finance: React.FC = () => {
           prefix="R$ "
           icon={<DollarSign size={18} className="text-green-500" />}
           iconBackground="bg-green-100 dark:bg-green-800"
-          compact
         />
         
         <MetricsCard
@@ -138,7 +159,6 @@ const Finance: React.FC = () => {
           prefix="R$ "
           icon={<CreditCard size={18} className="text-red-500" />}
           iconBackground="bg-red-100 dark:bg-red-800"
-          compact
         />
         
         <MetricsCard
@@ -147,16 +167,14 @@ const Finance: React.FC = () => {
           prefix="R$ "
           icon={<Wallet size={18} className="text-blue-500" />}
           iconBackground="bg-blue-100 dark:bg-blue-800"
-          compact
         />
         
         <MetricsCard
-          title="Total de Dízimos"
+          title="Total de Mensalidades"
           value={financialMetrics.tithesTotal}
           prefix="R$ "
           icon={<TrendingUp size={18} className="text-amber-500" />}
           iconBackground="bg-amber-100 dark:bg-amber-800"
-          compact
         />
       </div>
 
@@ -168,7 +186,6 @@ const Finance: React.FC = () => {
             description="Comparativo dos últimos 6 meses"
             chartData={financeChartData}
             chartType="line"
-            height={300}
           />
         </div>
         
@@ -211,7 +228,7 @@ const Finance: React.FC = () => {
       {/* Add Transaction Modal */}
       <Modal
         isOpen={isAddingTransaction}
-        onClose={() => setIsAddingTransaction(false)}
+        onClose={handleCloseModal}
         title="Nova Transação"
         size="md"
       >
@@ -297,11 +314,14 @@ const Finance: React.FC = () => {
               <label htmlFor="memberName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Nome do Membro (opcional)
               </label>
-              <input
-                type="text"
+              <Autocomplete
                 id="memberName"
                 name="memberName"
-                className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Digite o nome do membro..."
+                options={memberOptions}
+                onChange={(value) => setSelectedMemberId(value)}
+                noOptionsText="Nenhum membro encontrado"
+                clearable
               />
             </div>
             
@@ -320,7 +340,7 @@ const Finance: React.FC = () => {
           <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 pt-4">
             <button
               type="button"
-              onClick={() => setIsAddingTransaction(false)}
+              onClick={handleCloseModal}
               className="px-3 py-2 sm:px-4 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               Cancelar

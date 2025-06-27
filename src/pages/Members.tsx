@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import MemberForm from '../components/members/MemberForm';
 import MemberList from '../components/members/MemberList';
 import Modal from '../components/ui/Modal';
@@ -13,11 +13,7 @@ const Members: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { getMembers, addMember, updateMember, deleteMember } = useSupabase();
 
-  useEffect(() => {
-    loadMembers();
-  }, []);
-
-  const loadMembers = async () => {
+  const loadMembers = useCallback(async () => {
     try {
       setIsLoading(true);
       const data = await getMembers();
@@ -27,7 +23,11 @@ const Members: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [getMembers]);
+
+  useEffect(() => {
+    loadMembers();
+  }, [loadMembers]);
 
   const handleAddMember = () => {
     setIsAddingMember(true);
@@ -59,8 +59,18 @@ const Members: React.FC = () => {
         await loadMembers();
         handleCloseModal();
       } catch (error) {
+        console.error('Erro ao excluir membro:', error);
         alert('Erro ao excluir membro!');
       }
+    }
+  };
+
+  const handleUpdateMemberStatus = async (memberId: string, newStatus: 'active' | 'inactive') => {
+    try {
+      await updateMember(memberId, { status: newStatus });
+      await loadMembers();
+    } catch (error) {
+      console.error('Erro ao atualizar status do membro:', error);
     }
   };
 
@@ -129,6 +139,7 @@ const Members: React.FC = () => {
           onAddMember={handleAddMember}
           onEditMember={handleEditMember}
           onViewMember={handleViewMember}
+          onUpdateMemberStatus={handleUpdateMemberStatus}
         />
       </div>
       

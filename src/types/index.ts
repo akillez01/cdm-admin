@@ -55,6 +55,69 @@ export interface InventoryItem {
   notes?: string;
 }
 
+// Santo Daime Inventory types
+export interface DaimeInventoryItem {
+  id: string;
+  codigo: string; // Código único para rastreamento
+  graduacao: 'Força 1' | 'Força 2' | 'Força 3' | 'Força 4' | 'Força 5'; // Graduação do Daime
+  litros: number; // Quantidade em litros
+  dataFeitio: string; // Data do feitio (data_feitio no banco)
+  responsavelFeitio: string; // Responsável pelo feitio (responsavel_feitio no banco)
+  localFeitio?: string; // Local onde foi feito o feitio (local_feitio no banco)
+  tipoFeitio: 'Concentração' | 'Novo' | 'Reforço'; // Tipo do feitio (tipo_feitio no banco)
+  panela?: string; // Número/nome da panela
+  observacoes?: string; // Observações adicionais
+  status: 'disponivel' | 'reservado' | 'consumido' | 'vencido'; // Status do sacramento
+  dataValidade?: string; // Data de validade (data_validade no banco)
+  localArmazenamento?: string; // Local de armazenamento (local_armazenamento no banco)
+  temperatura?: number; // Temperatura de armazenamento
+  ph?: number; // pH do sacramento
+  cor: 'Amarelo' | 'Marrom Claro' | 'Marrom' | 'Marrom Escuro' | 'Roxo'; // Cor do sacramento
+  consistencia: 'Líquida' | 'Densa' | 'Muito Densa'; // Consistência
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Tipo para inserção (sem campos obrigatórios gerados pelo banco)
+export interface DaimeInventoryInsert {
+  codigo: string;
+  graduacao: 'Força 1' | 'Força 2' | 'Força 3' | 'Força 4' | 'Força 5';
+  litros: number;
+  dataFeitio: string;
+  responsavelFeitio: string;
+  localFeitio?: string;
+  tipoFeitio?: 'Concentração' | 'Novo' | 'Reforço';
+  panela?: string;
+  observacoes?: string;
+  status?: 'disponivel' | 'reservado' | 'consumido' | 'vencido';
+  dataValidade?: string;
+  localArmazenamento?: string;
+  temperatura?: number;
+  ph?: number;
+  cor?: 'Amarelo' | 'Marrom Claro' | 'Marrom' | 'Marrom Escuro' | 'Roxo';
+  consistencia?: 'Líquida' | 'Densa' | 'Muito Densa';
+}
+
+// Tipo para atualização (todos os campos opcionais exceto id)
+export interface DaimeInventoryUpdate {
+  codigo?: string;
+  graduacao?: 'Força 1' | 'Força 2' | 'Força 3' | 'Força 4' | 'Força 5';
+  litros?: number;
+  dataFeitio?: string;
+  responsavelFeitio?: string;
+  localFeitio?: string;
+  tipoFeitio?: 'Concentração' | 'Novo' | 'Reforço';
+  panela?: string;
+  observacoes?: string;
+  status?: 'disponivel' | 'reservado' | 'consumido' | 'vencido';
+  dataValidade?: string;
+  localArmazenamento?: string;
+  temperatura?: number;
+  ph?: number;
+  cor?: 'Amarelo' | 'Marrom Claro' | 'Marrom' | 'Marrom Escuro' | 'Roxo';
+  consistencia?: 'Líquida' | 'Densa' | 'Muito Densa';
+}
+
 // Event types
 export interface Event {
   id: string;

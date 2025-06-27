@@ -62,7 +62,7 @@ const ChurchSettings: React.FC = () => {
 
   const tabs = [
     { id: 'general', name: 'Geral', icon: <Settings size={18} /> },
-    { id: 'services', name: 'Cultos', icon: <Calendar size={18} /> },
+    { id: 'services', name: 'Trabalhos', icon: <Calendar size={18} /> },
     { id: 'membership', name: 'Membros', icon: <Users size={18} /> },
   ];
 
@@ -226,7 +226,7 @@ const ChurchSettings: React.FC = () => {
                 <div>
                   <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-4 flex items-center">
                     <Calendar className="mr-2" size={18} />
-                    Culto de Meio de Semana
+                    Trabalho de Meio de Semana
                   </h3>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

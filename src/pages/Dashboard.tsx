@@ -179,7 +179,7 @@ const Dashboard: React.FC = () => {
         />
         
         <MetricCard 
-          title="Eventos Próximos"
+          title="Próximos Trabalhos"
           value={metrics.upcomingEvents}
           change="3 esta semana"
           icon={<CalendarDays className="w-5 h-5 sm:w-6 sm:h-6" />}
@@ -211,7 +211,7 @@ const Dashboard: React.FC = () => {
       {/* Gráficos */}
       <div className="grid grid-cols-1 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <ChartCard 
-          title="Frequência nos Cultos"
+          title="Frequência nos Trabalhos"
           description="Dados dos últimos 9 meses"
           chart={
             <LineChartComponent 
@@ -222,7 +222,7 @@ const Dashboard: React.FC = () => {
         />
         
         <ChartCard 
-          title="Dízimos e Ofertas"
+          title="Mensalidades e contribuições"
           description="Valores em Reais (R$)"
           chart={
             <LineChartComponent 
@@ -274,7 +274,7 @@ const Dashboard: React.FC = () => {
                   <span className="font-medium">Email:</span> contato@igrejaexemplo.com
                 </div>
                 <div>
-                  <span className="font-medium">Endereço:</span> Rua Exemplo, 123 - Centro, São Paulo/SP
+                  <span className="font-medium">Endereço:</span> Rua Caravelle, 123 - Taruma, Manaus/AM
                 </div>
               </div>
             </div>

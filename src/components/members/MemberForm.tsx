@@ -124,7 +124,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
         </div>
         
         <div>
-          <label htmlFor="baptismDate" className="form-label">Data de Batismo</label>
+          <label htmlFor="baptismDate" className="form-label">Data de Fardamento</label>
           <input
             type="date"
             id="baptismDate"

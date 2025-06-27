@@ -2,7 +2,6 @@ import {
   BarChart2,
   Calendar,
   ChevronLeft,
-  Church,
   DollarSign,
   Home,
   LogOut,
@@ -81,7 +80,11 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-5 border-b border-primary-500">
             <div className="flex items-center">
-              <Church size={26} className="text-secondary-400" />
+              <img 
+                src="/cdm-admin/images/cdmlogo.png" 
+                alt="CDM Logo" 
+                className="w-8 h-8 object-cover rounded-full bg-white" 
+              />
               {!isMinimized && (
                 <h1 className="ml-3 text-xl font-bold truncate">Céu das Matas</h1>
               )}

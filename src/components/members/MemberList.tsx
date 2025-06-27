@@ -1,5 +1,5 @@
+import { Plus, Search } from 'lucide-react';
 import React, { useState } from 'react';
-import { Search, Filter, Plus, MoreVertical } from 'lucide-react';
 import { Member } from '../../types';
 
 interface MemberListProps {
@@ -7,6 +7,7 @@ interface MemberListProps {
   onAddMember: () => void;
   onEditMember: (member: Member) => void;
   onViewMember: (member: Member) => void;
+  onUpdateMemberStatus: (memberId: string, newStatus: 'active' | 'inactive') => Promise<void>;
 }
 
 const MemberList: React.FC<MemberListProps> = ({
@@ -14,36 +15,47 @@ const MemberList: React.FC<MemberListProps> = ({
   onAddMember,
   onEditMember,
   onViewMember,
+  onUpdateMemberStatus,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
 
+  const handleStatusToggle = async (member: Member) => {
+    const newStatus = member.status === 'active' ? 'inactive' : 'active';
+    try {
+      await onUpdateMemberStatus(member.id, newStatus);
+    } catch (error) {
+      console.error('Erro ao atualizar status do membro:', error);
+    }
+  };
+
+  const getMemberType = (member: Member) => {
+    if (member.status === 'visitor') return 'Visitante';
+    if (member.ministries && member.ministries.length > 0) return 'Fardado';
+    return 'Frequentador';
+  };
+
   const filteredMembers = members.filter((member) => {
     const matchesSearch = 
       `${member.firstName} ${member.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.email.toLowerCase().includes(searchQuery.toLowerCase());
+      member.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.phone?.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || member.status === statusFilter;
     
-    return matchesSearch && matchesStatus;
+    const memberType = getMemberType(member);
+    const matchesType = typeFilter === 'all' || 
+      (typeFilter === 'visitor' && memberType === 'Visitante') ||
+      (typeFilter === 'member' && memberType === 'Frequentador') ||
+      (typeFilter === 'ordained' && memberType === 'Fardado');
+    
+    return matchesSearch && matchesStatus && matchesType;
   });
-
-  const getStatusBadgeClass = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'badge-success';
-      case 'inactive':
-        return 'badge-warning';
-      case 'visitor':
-        return 'badge-info';
-      default:
-        return 'badge-info';
-    }
-  };
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card">
@@ -66,13 +78,26 @@ const MemberList: React.FC<MemberListProps> = ({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
-              placeholder="Buscar membros..."
+              placeholder="Buscar por nome, email ou telefone..."
               value={searchQuery}
               onChange={handleSearchChange}
               className="form-input pl-10 w-full"
             />
           </div>
           
+          <div className="w-full md:w-48">
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="form-input"
+            >
+              <option value="all">Todos os Tipos</option>
+              <option value="visitor">Visitante</option>
+              <option value="member">Frequentador</option>
+              <option value="ordained">Fardado</option>
+            </select>
+          </div>
+
           <div className="w-full md:w-48">
             <select
               value={statusFilter}
@@ -96,7 +121,7 @@ const MemberList: React.FC<MemberListProps> = ({
               <th scope="col">Email</th>
               <th scope="col">Telefone</th>
               <th scope="col">Status</th>
-              <th scope="col">Ministérios</th>
+              <th scope="col">Tipo</th>
               <th scope="col" className="relative">
                 <span className="sr-only">Ações</span>
               </th>
@@ -135,28 +160,23 @@ const MemberList: React.FC<MemberListProps> = ({
                     {member.phone}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`badge ${getStatusBadgeClass(member.status)}`}>
-                      {member.status === 'active' && 'Ativo'}
-                      {member.status === 'inactive' && 'Inativo'}
-                      {member.status === 'visitor' && 'Visitante'}
-                    </span>
+                    <div className="flex items-center">
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
+                          checked={member.status === 'active'}
+                          onChange={() => handleStatusToggle(member)}
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"></div>
+                        <span className="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                          {member.status === 'active' ? 'Ativo' : 'Inativo'}
+                        </span>
+                      </label>
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    <div className="flex flex-wrap gap-1">
-                      {member.ministries.slice(0, 2).map((ministry, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-1 text-xs rounded-full bg-primary-50 dark:bg-primary-900 text-primary-600 dark:text-primary-200"
-                        >
-                          {ministry}
-                        </span>
-                      ))}
-                      {member.ministries.length > 2 && (
-                        <span className="px-2 py-1 text-xs rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                          +{member.ministries.length - 2}
-                        </span>
-                      )}
-                    </div>
+                    {getMemberType(member)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">
