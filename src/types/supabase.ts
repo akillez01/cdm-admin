@@ -115,6 +115,71 @@ export interface Database {
           updated_at?: string
         }
       }
+      daime_inventory: {
+        Row: {
+          id: string
+          codigo: string
+          graduacao: string
+          litros: number
+          data_feitio: string
+          responsavel_feitio: string
+          local_feitio: string
+          tipo_feitio: string
+          panela: string | null
+          observacoes: string | null
+          status: 'disponivel' | 'reservado' | 'consumido' | 'vencido'
+          data_validade: string | null
+          local_armazenamento: string | null
+          temperatura: number | null
+          ph: number | null
+          cor: string | null
+          consistencia: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          codigo: string
+          graduacao: string
+          litros: number
+          data_feitio: string
+          responsavel_feitio: string
+          local_feitio: string
+          tipo_feitio: string
+          panela?: string | null
+          observacoes?: string | null
+          status: 'disponivel' | 'reservado' | 'consumido' | 'vencido'
+          data_validade?: string | null
+          local_armazenamento?: string | null
+          temperatura?: number | null
+          ph?: number | null
+          cor?: string | null
+          consistencia?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          codigo?: string
+          graduacao?: string
+          litros?: number
+          data_feitio?: string
+          responsavel_feitio?: string
+          local_feitio?: string
+          tipo_feitio?: string
+          panela?: string | null
+          observacoes?: string | null
+          status?: 'disponivel' | 'reservado' | 'consumido' | 'vencido'
+          data_validade?: string | null
+          local_armazenamento?: string | null
+          temperatura?: number | null
+          ph?: number | null
+          cor?: string | null
+          consistencia?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
   }
 }

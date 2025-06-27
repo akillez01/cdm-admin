@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDM Admin - Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f2f5;
+        }
+        .debug-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+        }
+        button:hover { background: #0056b3; }
+        .test-results {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            border: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>🔧 CDM Admin - Debug Completo</h1>
+        
+        <div class="status success">
+            ✅ Esta página carregou com sucesso!
+        </div>
+        
+        <div id="automatic-tests">
+            <h3>🔍 Testes Automáticos:</h3>
+            <div id="test-results">Executando...</div>
+        </div>
+        
+        <div>
+            <h3>🧪 Testes Manuais:</h3>
+            <button onclick="testMainApp()">Testar App Principal</button>
+            <button onclick="testAssets()">Testar Assets JS/CSS</button>
+            <button onclick="testSupabase()">Testar Supabase</button>
+            <button onclick="testConsole()">Debug Console</button>
+            <button onclick="window.location.href='/'">Ir para App</button>
+        </div>
+        
+        <div id="results" class="test-results">
+            <h4>📊 Resultados dos Testes:</h4>
+            <div id="results-content">Clique nos botões acima para executar testes...</div>
+        </div>
+        
+        <div>
+            <h3>📋 Informações do Sistema:</h3>
+            <pre id="system-info">Carregando...</pre>
+        </div>
+    </div>
+
+    <script>
+        console.log('🎯 CDM Admin Debug - Iniciando...');
+        
+        // Testes automáticos ao carregar
+        window.onload = function() {
+            runAutomaticTests();
+            loadSystemInfo();
+        };
+        
+        function runAutomaticTests() {
+            const resultsDiv = document.getElementById('test-results');
+            let results = [];
+            
+            // Teste básicos
+            results.push('✅ JavaScript: Funcionando');
+            results.push('✅ DOM: Carregado');
+            results.push(`✅ URL: ${window.location.href}`);
+            results.push(`✅ Protocol: ${window.location.protocol}`);
+            results.push(`✅ Host: ${window.location.host}`);
+            
+            // Verificar se existem erros no console
+            const originalError = console.error;
+            let errors = [];
+            console.error = function(...args) {
+                errors.push(args.join(' '));
+                originalError.apply(console, args);
+            };
+            
+            if (errors.length === 0) {
+                results.push('✅ Console: Sem erros críticos');
+            } else {
+                results.push(`❌ Console: ${errors.length} erros encontrados`);
+            }
+            
+            resultsDiv.innerHTML = results.join('<br>');
+        }
+        
+        function loadSystemInfo() {
+            const info = {
+                'URL Completa': window.location.href,
+                'Domínio': window.location.hostname,
+                'Protocolo': window.location.protocol,
+                'Porta': window.location.port || 'padrão',
+                'Caminho': window.location.pathname,
+                'User Agent': navigator.userAgent,
+                'Idioma': navigator.language,
+                'Cookies Habilitados': navigator.cookieEnabled,
+                'Online': navigator.onLine,
+                'Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
+                'Data/Hora': new Date().toLocaleString('pt-BR')
+            };
+            
+            let infoText = '';
+            for (const [key, value] of Object.entries(info)) {
+                infoText += `${key}: ${value}\n`;
+            }
+            
+            document.getElementById('system-info').textContent = infoText;
+        }
+        
+        function testMainApp() {
+            const resultsDiv = document.getElementById('results-content');
+            resultsDiv.innerHTML = '<h5>🎯 Testando App Principal...</h5>';
+            
+            // Tentar carregar o app principal
+            fetch('/')
+                .then(response => response.text())
+                .then(html => {
+                    if (html.includes('CDM') || html.includes('root')) {
+                        resultsDiv.innerHTML += '<p class="status success">✅ App principal: HTML carregando</p>';
+                        
+                        // Verificar se tem os scripts corretos
+                        if (html.includes('index-') && html.includes('.js')) {
+                            resultsDiv.innerHTML += '<p class="status success">✅ Scripts: Encontrados no HTML</p>';
+                        } else {
+                            resultsDiv.innerHTML += '<p class="status error">❌ Scripts: Não encontrados</p>';
+                        }
+                    } else {
+                        resultsDiv.innerHTML += '<p class="status error">❌ App principal: HTML inválido</p>';
+                    }
+                })
+                .catch(error => {
+                    resultsDiv.innerHTML += `<p class="status error">❌ App principal: ${error.message}</p>`;
+                });
+        }
+        
+        function testAssets() {
+            const resultsDiv = document.getElementById('results-content');
+            resultsDiv.innerHTML = '<h5>📁 Testando Assets...</h5>';
+            
+            // Lista de assets para testar
+            const assets = [
+                '/assets/index-CZSgMWmE.js',
+                '/assets/index-CWfnR0Ha.css'
+            ];
+            
+            assets.forEach(asset => {
+                fetch(asset)
+                    .then(response => {
+                        const contentType = response.headers.get('content-type');
+                        if (response.ok) {
+                            resultsDiv.innerHTML += `<p class="status success">✅ ${asset}: OK (${contentType})</p>`;
+                        } else {
+                            resultsDiv.innerHTML += `<p class="status error">❌ ${asset}: ${response.status}</p>`;
+                        }
+                    })
+                    .catch(error => {
+                        resultsDiv.innerHTML += `<p class="status error">❌ ${asset}: ${error.message}</p>`;
+                    });
+            });
+        }
+        
+        function testSupabase() {
+            const resultsDiv = document.getElementById('results-content');
+            resultsDiv.innerHTML = '<h5>🔵 Testando Supabase...</h5>';
+            
+            const supabaseUrl = 'https://xkkbeilbthmezeqizcch.supabase.co/rest/v1/';
+            const apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhra2JlaWxidGhtZXplcWl6Y2NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxMDgyMzgsImV4cCI6MjA2MzY4NDIzOH0.Q1rUqU6DpD_7JCHyJ6q_gsz7wGAotSDsGKKs4XtghAo';
+            
+            fetch(supabaseUrl, {
+                headers: {
+                    'apikey': apiKey,
+                    'Authorization': `Bearer ${apiKey}`
+                }
+            })
+            .then(response => {
+                resultsDiv.innerHTML += `<p class="status success">✅ Supabase: Conectado (${response.status})</p>`;
+                
+                // Testar tabela específica
+                return fetch(supabaseUrl + 'daime_inventory?select=*&limit=1', {
+                    headers: {
+                        'apikey': apiKey,
+                        'Authorization': `Bearer ${apiKey}`
+                    }
+                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (Array.isArray(data)) {
+                    resultsDiv.innerHTML += `<p class="status success">✅ Tabela daime_inventory: ${data.length} registros encontrados</p>`;
+                } else {
+                    resultsDiv.innerHTML += '<p class="status warning">⚠️ Tabela daime_inventory: Resposta inesperada</p>';
+                }
+            })
+            .catch(error => {
+                resultsDiv.innerHTML += `<p class="status error">❌ Supabase: ${error.message}</p>`;
+            });
+        }
+        
+        function testConsole() {
+            const resultsDiv = document.getElementById('results-content');
+            resultsDiv.innerHTML = '<h5>🖥️ Debug do Console...</h5>';
+            
+            // Capturar erros do console
+            const originalError = console.error;
+            const originalWarn = console.warn;
+            const errors = [];
+            const warnings = [];
+            
+            console.error = function(...args) {
+                errors.push(args.join(' '));
+                originalError.apply(console, args);
+            };
+            
+            console.warn = function(...args) {
+                warnings.push(args.join(' '));
+                originalWarn.apply(console, args);
+            };
+            
+            // Tentar carregar e executar scripts do app principal
+            const script = document.createElement('script');
+            script.type = 'module';
+            script.src = '/assets/index-CZSgMWmE.js';
+            script.onload = function() {
+                resultsDiv.innerHTML += '<p class="status success">✅ Script principal: Carregado</p>';
+            };
+            script.onerror = function() {
+                resultsDiv.innerHTML += '<p class="status error">❌ Script principal: Erro ao carregar</p>';
+            };
+            
+            setTimeout(() => {
+                if (errors.length > 0) {
+                    resultsDiv.innerHTML += `<p class="status error">❌ Erros: ${errors.length}</p>`;
+                    resultsDiv.innerHTML += `<pre>${errors.join('\n')}</pre>`;
+                } else {
+                    resultsDiv.innerHTML += '<p class="status success">✅ Sem erros JavaScript</p>';
+                }
+                
+                if (warnings.length > 0) {
+                    resultsDiv.innerHTML += `<p class="status warning">⚠️ Avisos: ${warnings.length}</p>`;
+                }
+            }, 2000);
+            
+            document.head.appendChild(script);
+        }
+        
+        // Log inicial
+        console.log('🎯 CDM Admin Debug carregado em:', window.location.href);
+        console.log('User Agent:', navigator.userAgent);
+        console.log('Timestamp:', new Date().toISOString());
+    </script>
+</body>
+</html>

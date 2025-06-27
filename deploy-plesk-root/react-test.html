@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste React CDM</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        
+        .test-section {
+            border: 1px solid #ddd;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid #e9ecef;
+        }
+        
+        .asset-test {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .asset-test img {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Diagnóstico React CDM Admin</h1>
+        
+        <div class="test-section">
+            <h2>1. Teste de Carregamento de Assets</h2>
+            <div id="asset-tests">
+                <div class="asset-test">
+                    <span>🔄 Testando...</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. Teste de JavaScript</h2>
+            <div id="js-test">
+                <div class="status info">Iniciando testes de JavaScript...</div>
+            </div>
+            <button onclick="testJavaScript()">Executar Teste JS</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. Teste de Fetch/API</h2>
+            <div id="fetch-test">
+                <div class="status info">Pronto para testar conexões...</div>
+            </div>
+            <button onclick="testFetch()">Testar Fetch</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>4. Console do Navegador</h2>
+            <div class="status warning">
+                <strong>Importante:</strong> Pressione F12 para abrir o Console do Navegador e verificar erros.
+            </div>
+            <button onclick="testConsole()">Testar Console</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>5. Informações do Ambiente</h2>
+            <div id="env-info">
+                <div class="status info">Carregando informações...</div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>6. Carregar App Principal</h2>
+            <div class="status warning">
+                <strong>Teste Final:</strong> <a href="/" target="_blank">Clique aqui para abrir o app principal</a>
+            </div>
+            <button onclick="window.open('/', '_blank')">Abrir App Principal</button>
+        </div>
+    </div>
+
+    <script>
+        console.log('🚀 Iniciando diagnóstico CDM Admin...');
+        
+        // Teste 1: Assets
+        function testAssets() {
+            const assets = [
+                '/assets/index-CZSgMWmE.js',
+                '/assets/index-CWfnR0Ha.css'
+            ];
+            
+            const container = document.getElementById('asset-tests');
+            container.innerHTML = '';
+            
+            assets.forEach(asset => {
+                const div = document.createElement('div');
+                div.className = 'asset-test';
+                div.innerHTML = `<span>🔄 Testando ${asset}...</span>`;
+                container.appendChild(div);
+                
+                fetch(asset)
+                    .then(response => {
+                        if (response.ok) {
+                            div.innerHTML = `<span style="color: green;">✅ ${asset} - OK (${response.status})</span>`;
+                            console.log(`✅ Asset OK: ${asset}`, response);
+                        } else {
+                            div.innerHTML = `<span style="color: red;">❌ ${asset} - Erro ${response.status}</span>`;
+                            console.error(`❌ Asset Error: ${asset}`, response);
+                        }
+                    })
+                    .catch(error => {
+                        div.innerHTML = `<span style="color: red;">❌ ${asset} - Erro: ${error.message}</span>`;
+                        console.error(`❌ Asset Error: ${asset}`, error);
+                    });
+            });
+        }
+        
+        // Teste 2: JavaScript
+        function testJavaScript() {
+            const container = document.getElementById('js-test');
+            let results = [];
+            
+            try {
+                // Teste básico
+                const test1 = typeof React !== 'undefined';
+                results.push(`React definido: ${test1 ? '✅' : '❌'}`);
+                
+                // Teste de fetch
+                const test2 = typeof fetch !== 'undefined';
+                results.push(`Fetch disponível: ${test2 ? '✅' : '❌'}`);
+                
+                // Teste de localStorage
+                const test3 = typeof localStorage !== 'undefined';
+                results.push(`localStorage disponível: ${test3 ? '✅' : '❌'}`);
+                
+                // Teste de módulos ES6
+                const test4 = typeof window.import !== 'undefined' || 'import' in window;
+                results.push(`ES6 Modules: ${test4 ? '✅' : '❌'}`);
+                
+                container.innerHTML = `
+                    <div class="status success">
+                        <strong>Testes JavaScript:</strong><br>
+                        ${results.join('<br>')}
+                    </div>
+                `;
+                
+                console.log('✅ Testes JavaScript concluídos:', results);
+                
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="status error">
+                        <strong>Erro nos testes JavaScript:</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+                console.error('❌ Erro nos testes JavaScript:', error);
+            }
+        }
+        
+        // Teste 3: Fetch
+        function testFetch() {
+            const container = document.getElementById('fetch-test');
+            container.innerHTML = '<div class="status info">Testando conexões...</div>';
+            
+            const tests = [
+                { name: 'Próprio domínio', url: '/' },
+                { name: 'Asset CSS', url: '/assets/index-CWfnR0Ha.css' },
+                { name: 'Asset JS', url: '/assets/index-CZSgMWmE.js' }
+            ];
+            
+            Promise.all(tests.map(test => 
+                fetch(test.url)
+                    .then(response => ({ ...test, status: response.status, ok: response.ok }))
+                    .catch(error => ({ ...test, error: error.message }))
+            )).then(results => {
+                const html = results.map(result => {
+                    if (result.error) {
+                        return `❌ ${result.name}: ${result.error}`;
+                    } else {
+                        return `${result.ok ? '✅' : '❌'} ${result.name}: ${result.status}`;
+                    }
+                }).join('<br>');
+                
+                container.innerHTML = `<div class="status ${results.every(r => r.ok) ? 'success' : 'warning'}">${html}</div>`;
+                console.log('🌐 Testes de fetch:', results);
+            });
+        }
+        
+        // Teste 4: Console
+        function testConsole() {
+            console.log('🔧 Teste do console executado!');
+            console.warn('⚠️ Este é um aviso de teste');
+            console.error('❌ Este é um erro de teste (pode ignorar)');
+            console.info('ℹ️ Informação de teste');
+            console.group('📊 Grupo de testes');
+            console.log('Teste dentro do grupo');
+            console.groupEnd();
+            
+            alert('Console testado! Verifique o console do navegador (F12)');
+        }
+        
+        // Informações do ambiente
+        function loadEnvInfo() {
+            const info = {
+                'User Agent': navigator.userAgent,
+                'URL Atual': window.location.href,
+                'Protocolo': window.location.protocol,
+                'Host': window.location.host,
+                'Pathname': window.location.pathname,
+                'Timestamp': new Date().toISOString(),
+                'Viewport': `${window.innerWidth}x${window.innerHeight}`,
+                'Screen': `${screen.width}x${screen.height}`,
+                'Local Storage': typeof(Storage) !== "undefined" ? "✅ Disponível" : "❌ Não disponível",
+                'Service Worker': 'serviceWorker' in navigator ? "✅ Suportado" : "❌ Não suportado"
+            };
+            
+            const html = Object.entries(info).map(([key, value]) => 
+                `<strong>${key}:</strong> ${value}`
+            ).join('<br>');
+            
+            document.getElementById('env-info').innerHTML = `<div class="status info">${html}</div>`;
+            console.log('🌍 Informações do ambiente:', info);
+        }
+        
+        // Inicializar testes
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('📋 DOM carregado, iniciando testes...');
+            testAssets();
+            loadEnvInfo();
+            
+            // Teste automático após 2 segundos
+            setTimeout(() => {
+                testJavaScript();
+                testFetch();
+            }, 2000);
+        });
+        
+        // Log de todos os erros
+        window.addEventListener('error', (event) => {
+            console.error('💥 Erro global capturado:', event.error);
+        });
+        
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('💥 Promise rejeitada:', event.reason);
+        });
+        
+        console.log('✅ Script de diagnóstico carregado!');
+    </script>
+</body>
+</html>

@@ -34,11 +34,16 @@ const Inventory: React.FC = () => {
 
   const loadInventory = useCallback(async () => {
     try {
+      console.log('� Recarregando inventário...');
       setIsLoading(true);
       const data = await getInventory() as InventoryItem[];
-      setInventory(data);
+      
+      if (data && Array.isArray(data) && data.length > 0) {
+        setInventory(data);
+        console.log(`✅ Inventário recarregado: ${data.length} itens`);
+      }
     } catch (error) {
-      console.error('Erro ao carregar inventário:', error);
+      console.error('❌ Erro ao recarregar inventário:', error);
     } finally {
       setIsLoading(false);
     }
@@ -46,62 +51,117 @@ const Inventory: React.FC = () => {
 
   const loadDaimeInventory = useCallback(async () => {
     try {
+      console.log('🔄 Recarregando inventário do Daime...');
       const data = await getDaimeInventory() as DaimeInventoryItem[];
-      setDaimeInventory(data);
+      
+      if (data && Array.isArray(data) && data.length > 0) {
+        setDaimeInventory(data);
+        console.log(`✅ Inventário do Daime recarregado: ${data.length} itens`);
+      }
     } catch (error) {
-      console.error('Erro ao carregar inventário do Daime:', error);
-      // Fallback para dados mock em caso de erro
-      const mockDaimeData: DaimeInventoryItem[] = [
-        {
-          id: '1',
-          codigo: 'DM001',
-          graduacao: 'Força 3',
-          litros: 15.5,
-          dataFeitio: '2024-12-15',
-          responsavelFeitio: 'Padrinho João',
-          localFeitio: 'Casa de Feitio - Núcleo Central',
-          tipoFeitio: 'Concentração',
-          panela: 'Panela 1',
-          observacoes: 'Feitio realizado com jagube do Rio Jordão',
-          status: 'disponivel',
-          localArmazenamento: 'Despensa Principal - Prateleira A',
-          temperatura: 18,
-          ph: 3.2,
-          cor: 'Marrom',
-          consistencia: 'Densa',
-          created_at: '2024-12-15T10:00:00Z'
-        },
-        {
-          id: '2',
-          codigo: 'DM002', 
-          graduacao: 'Força 4',
-          litros: 8.2,
-          dataFeitio: '2024-11-28',
-          responsavelFeitio: 'Madrinha Maria',
-          localFeitio: 'Casa de Feitio - Núcleo Norte',
-          tipoFeitio: 'Novo',
-          panela: 'Panela 2',
-          observacoes: 'Primeira força do ano, muito concentrada',
-          status: 'reservado',
-          localArmazenamento: 'Despensa Principal - Prateleira B', 
-          temperatura: 16,
-          ph: 3.1,
-          cor: 'Marrom Escuro',
-          consistencia: 'Muito Densa',
-          created_at: '2024-11-28T14:30:00Z'
-        }
-      ];
-      setDaimeInventory(mockDaimeData);
+      console.error('❌ Erro ao recarregar inventário do Daime:', error);
     }
   }, [getDaimeInventory]);
 
   useEffect(() => {
+    let isMounted = true; // Flag para evitar atualizações em componentes desmontados
+    
     const loadData = async () => {
-      await loadInventory();
-      await loadDaimeInventory();
+      if (!isMounted) return;
+      
+      // Carregar inventário geral
+      try {
+        console.log('📦 Carregando inventário geral...');
+        setIsLoading(true);
+        const data = await getInventory() as InventoryItem[];
+        
+        if (!isMounted) return;
+        
+        if (data && Array.isArray(data) && data.length > 0) {
+          setInventory(data);
+          console.log(`✅ Inventário carregado: ${data.length} itens`);
+        } else {
+          console.warn('⚠️ Nenhum item encontrado no inventário, usando dados de exemplo');
+          
+          // Fallback para dados mock
+          const mockInventoryData: InventoryItem[] = [
+            {
+              id: '1',
+              name: 'Materiais de Limpeza',
+              category: 'Limpeza',
+              quantity: 25,
+              location: 'Depósito Principal',
+              value: 15.0,
+              supplier: 'Distribuidora ABC',
+              purchaseDate: '2024-12-01',
+              minQuantity: 10,
+              status: 'available',
+              notes: 'Produtos diversos para limpeza'
+            }
+          ];
+          setInventory(mockInventoryData);
+        }
+      } catch (error) {
+        console.error('❌ Erro ao carregar inventário:', error);
+      }
+      
+      // Carregar inventário do Daime
+      try {
+        if (!isMounted) return;
+        
+        console.log('🌿 Carregando inventário do Daime...');
+        const data = await getDaimeInventory() as DaimeInventoryItem[];
+        
+        if (!isMounted) return;
+        
+        if (data && Array.isArray(data) && data.length > 0) {
+          setDaimeInventory(data);
+          console.log(`✅ Inventário do Daime carregado: ${data.length} itens`);
+        } else {
+          console.warn('⚠️ Nenhum item encontrado no Daime, usando dados de exemplo');
+          
+          // Fallback para dados mock
+          const mockDaimeData: DaimeInventoryItem[] = [
+            {
+              id: '1',
+              codigo: 'DM001',
+              graduacao: 'Força 3',
+              litros: 15.5,
+              dataFeitio: '2024-12-15',
+              responsavelFeitio: 'Padrinho João',
+              localFeitio: 'Casa de Feitio - Núcleo Central',
+              tipoFeitio: 'Concentração',
+              panela: 'Panela 1',
+              observacoes: 'Feitio realizado com jagube do Rio Jordão',
+              status: 'disponivel',
+              localArmazenamento: 'Despensa Principal - Prateleira A',
+              temperatura: 18,
+              ph: 3.2,
+              cor: 'Marrom',
+              consistencia: 'Densa',
+              created_at: '2024-12-15T10:00:00Z'
+            }
+          ];
+          setDaimeInventory(mockDaimeData);
+        }
+      } catch (error) {
+        console.error('❌ Erro ao carregar inventário do Daime:', error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+          console.log('✅ Carregamento concluído');
+        }
+      }
     };
+    
     loadData();
-  }, [loadInventory, loadDaimeInventory]);
+    
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Array vazio - executa apenas uma vez na montagem
 
   const handleAddItem = () => {
     setIsAddingItem(true);

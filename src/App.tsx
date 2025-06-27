@@ -10,26 +10,27 @@ import Settings from './pages/Settings';
 
 function App() {
   return (
-    <BrowserRouter
-      basename="/cdm-admin"
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true
-      }}
-    >
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="members" element={<Members />} />
-          <Route path="finance" element={<Finance />} />
-          <Route path="inventory" element={<Inventory />} />
-          <Route path="events" element={<Events />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <>
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true
+        }}
+      >
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="members" element={<Members />} />
+            <Route path="finance" element={<Finance />} />
+            <Route path="inventory" element={<Inventory />} />
+            <Route path="events" element={<Events />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
 

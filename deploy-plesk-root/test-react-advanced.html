@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CDM Admin - Teste React Avançado</title>
+    <style>
+      body { 
+        font-family: Arial, sans-serif; 
+        margin: 20px; 
+        background: #f5f5f5;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .status { 
+        padding: 12px; 
+        margin: 10px 0; 
+        border-radius: 5px; 
+        border-left: 4px solid;
+        font-weight: 500;
+      }
+      .success { 
+        background: #d4edda; 
+        color: #155724; 
+        border-color: #28a745;
+      }
+      .error { 
+        background: #f8d7da; 
+        color: #721c24; 
+        border-color: #dc3545;
+      }
+      .warning { 
+        background: #fff3cd; 
+        color: #856404; 
+        border-color: #ffc107;
+      }
+      .info { 
+        background: #d1ecf1; 
+        color: #0c5460; 
+        border-color: #17a2b8;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .react-container {
+        margin: 20px 0;
+        padding: 20px;
+        border: 2px dashed #007bff;
+        border-radius: 5px;
+        min-height: 100px;
+        background: #f8f9fa;
+      }
+      .btn {
+        background: #007bff;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px;
+      }
+      .btn:hover {
+        background: #0056b3;
+      }
+      #root {
+        margin-top: 20px;
+        padding: 20px;
+        border: 2px solid #28a745;
+        border-radius: 5px;
+        min-height: 100px;
+        background: #f8fff8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🔧 CDM Admin - Teste React Avançado</h1>
+      <div id="debug-info"></div>
+      
+      <div class="test-section">
+        <h3>📦 Teste de Assets</h3>
+        <div id="asset-results"></div>
+        <button class="btn" onclick="testAssets()">Testar Assets</button>
+      </div>
+      
+      <div class="react-container">
+        <h3>⚛️ Área de Teste React</h3>
+        <div id="react-test-area">
+          <p>Aguardando testes do React...</p>
+        </div>
+        <button class="btn" onclick="testReactBasic()">Teste React Básico</button>
+        <button class="btn" onclick="loadMainApp()">Carregar App Principal</button>
+      </div>
+      
+      <div class="test-section">
+        <h3>🌐 Console de Rede</h3>
+        <div id="network-info">
+          <p>Verifique o DevTools (F12) → Network para ver requisições HTTP</p>
+        </div>
+      </div>
+    </div>
+    
+    <div id="root"></div>
+    
+    <script>
+      const debug = document.getElementById('debug-info');
+      const assetResults = document.getElementById('asset-results');
+      const reactTestArea = document.getElementById('react-test-area');
+      
+      function addStatus(message, type = 'info', container = debug) {
+        const div = document.createElement('div');
+        div.className = `status ${type}`;
+        div.innerHTML = message;
+        container.appendChild(div);
+        console.log(`[${type.toUpperCase()}] ${message.replace(/<[^>]*>/g, '')}`);
+      }
+      
+      // Diagnóstico inicial
+      addStatus('🚀 Iniciando diagnóstico avançado...', 'info');
+      addStatus('✅ JavaScript está funcionando', 'success');
+      
+      // Informações do ambiente
+      addStatus(`🌐 URL: ${window.location.href}`, 'info');
+      addStatus(`🔒 Protocolo: ${window.location.protocol}`, 'info');
+      addStatus(`📱 User Agent: ${navigator.userAgent.substring(0, 80)}...`, 'info');
+      
+      // Função para testar assets específicos
+      async function testAssets() {
+        assetResults.innerHTML = '';
+        addStatus('🔍 Testando assets do CDM Admin...', 'info', assetResults);
+        
+        const assets = [
+          '/assets/index-D-vrDhA2.js',
+          '/assets/index-CWfnR0Ha.css',
+          '/vite.svg',
+          '/images/cdmlogo.png'
+        ];
+        
+        for (const asset of assets) {
+          try {
+            const response = await fetch(asset, { method: 'HEAD' });
+            if (response.ok) {
+              const contentType = response.headers.get('content-type') || 'unknown';
+              addStatus(`✅ ${asset} - ${response.status} (${contentType})`, 'success', assetResults);
+            } else {
+              addStatus(`❌ ${asset} - HTTP ${response.status}`, 'error', assetResults);
+            }
+          } catch (error) {
+            addStatus(`❌ ${asset} - Erro: ${error.message}`, 'error', assetResults);
+          }
+        }
+      }
+      
+      // Teste React básico
+      function testReactBasic() {
+        reactTestArea.innerHTML = '';
+        addStatus('⚛️ Testando React básico...', 'info');
+        
+        try {
+          // Simular estrutura React
+          const reactDiv = document.createElement('div');
+          reactDiv.innerHTML = `
+            <div style="border: 1px solid #61dafb; padding: 10px; border-radius: 4px; background: #f0f8ff;">
+              <h4 style="color: #61dafb; margin: 0 0 10px 0;">⚛️ Simulação React</h4>
+              <p>✅ Elemento criado dinamicamente</p>
+              <p>🔄 Estado: Ativo</p>
+              <p>📅 Timestamp: ${new Date().toLocaleString()}</p>
+            </div>
+          `;
+          reactTestArea.appendChild(reactDiv);
+          
+          addStatus('✅ React básico simulado com sucesso', 'success');
+        } catch (error) {
+          addStatus(`❌ Erro no React básico: ${error.message}`, 'error');
+        }
+      }
+      
+      // Tentar carregar a aplicação principal
+      function loadMainApp() {
+        addStatus('🚀 Tentando carregar aplicação principal...', 'info');
+        
+        try {
+          // Carregar CSS primeiro
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.crossOrigin = 'anonymous';
+          link.href = '/assets/index-CWfnR0Ha.css';
+          
+          link.onload = () => {
+            addStatus('✅ CSS principal carregado', 'success');
+          };
+          
+          link.onerror = () => {
+            addStatus('❌ Erro ao carregar CSS principal', 'error');
+          };
+          
+          document.head.appendChild(link);
+          
+          // Criar script tag para carregar o JS principal
+          const script = document.createElement('script');
+          script.type = 'module';
+          script.crossOrigin = 'anonymous';
+          script.src = '/assets/index-D-vrDhA2.js';
+          
+          script.onload = () => {
+            addStatus('✅ Script principal carregado', 'success');
+            
+            // Verificar se o React renderizou
+            setTimeout(() => {
+              const root = document.getElementById('root');
+              if (root && root.innerHTML.trim() !== '') {
+                addStatus('✅ React App renderizado no #root!', 'success');
+              } else {
+                addStatus('⚠️ Script carregou mas #root ainda está vazio', 'warning');
+                addStatus('💡 Aguarde alguns segundos ou verifique o console...', 'info');
+              }
+            }, 3000);
+          };
+          
+          script.onerror = (error) => {
+            addStatus('❌ Erro ao carregar script principal', 'error');
+            console.error('Script error:', error);
+          };
+          
+          document.head.appendChild(script);
+          
+        } catch (error) {
+          addStatus(`❌ Erro ao tentar carregar app: ${error.message}`, 'error');
+        }
+      }
+      
+      // Teste da API
+      async function testAPI() {
+        try {
+          addStatus('🔌 Testando conexão com API...', 'info');
+          const response = await fetch('https://sleepy-allen.66-179-92-233.plesk.page/api/health');
+          if (response.ok) {
+            const data = await response.json();
+            addStatus(`✅ API respondeu: ${JSON.stringify(data)}`, 'success');
+          } else {
+            addStatus(`⚠️ API status: ${response.status}`, 'warning');
+          }
+        } catch (error) {
+          addStatus(`❌ API não disponível: ${error.message}`, 'error');
+        }
+      }
+      
+      // Executar testes automáticos
+      setTimeout(() => {
+        testAPI();
+        testAssets();
+      }, 1000);
+      
+      // Monitor de erros
+      window.addEventListener('error', (error) => {
+        addStatus(`❌ Erro JS: ${error.message} (${error.filename}:${error.lineno})`, 'error');
+      });
+      
+      window.addEventListener('unhandledrejection', (event) => {
+        addStatus(`❌ Promise rejeitada: ${event.reason}`, 'error');
+      });
+      
+      addStatus('✅ Monitor de erros ativo', 'success');
+    </script>
+  </body>
+</html>

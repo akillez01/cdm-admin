@@ -1,33 +1,39 @@
-import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import react from "@vitejs/plugin-react";
+import path from "path";
+import { defineConfig } from "vite";
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), '');
-  
-  return {
-    plugins: [react()],
-    base: env.VITE_BASE_URL || '/', // Use variável de ambiente ou fallback
-    optimizeDeps: {
-      exclude: ['lucide-react'],
+// https://vitejs.dev/config/
+export default defineConfig(({ mode }) => ({
+  // Base sempre na raiz para deploy no Plesk
+  base: '/',
+
+  server: {
+    host: "::",
+    port: 3000,
+    strictPort: true,
+    historyApiFallback: true, // Habilita o suporte para History API Fallback (roteamento SPA)
+  },
+
+  plugins: [
+    react(),
+  ].filter(Boolean),
+
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
     },
-    resolve: {
-      alias: {
-        '@': resolve(__dirname, 'src'),
+  },
+
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      output: {
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
       },
     },
-    build: {
-      outDir: 'dist',
-      sourcemap: mode === 'development', // Sourcemap apenas em dev
-      minify: mode === 'production' ? 'esbuild' : false, // Usar esbuild em vez de terser
-    },
-    server: {
-      port: 3000,
-      host: true,
-    },
-    preview: {
-      port: 3000,
-      host: true,
-    },
-  };
-});
+    // Garantir que o build seja otimizado para SPA
+    ssrManifest: false,
+  },
+}));

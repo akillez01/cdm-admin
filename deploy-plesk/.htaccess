@@ -1,33 +1,10 @@
 # CDM Admin - SPA Routing Configuration
 RewriteEngine On
 
-# Configurar tipos MIME corretos
-<IfModule mod_mime.c>
-    AddType application/javascript .js
-    AddType text/css .css
-    AddType image/svg+xml .svg
-    AddType image/png .png
-    AddType image/jpeg .jpg
-    AddType image/jpeg .jpeg
-    AddType image/gif .gif
-    AddType image/webp .webp
-    AddType font/woff2 .woff2
-    AddType font/woff .woff
-    AddType font/ttf .ttf
-</IfModule>
-
-# Servir arquivos estáticos primeiro, DEPOIS fazer SPA routing
-# Não redirecionar arquivos que existem fisicamente
+# Handle Angular and Vue.js Router
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-# Não redirecionar arquivos de assets
-RewriteCond %{REQUEST_URI} !^/cdm-admin/assets/
-RewriteCond %{REQUEST_URI} !^/assets/
-# Não redirecionar arquivos comuns
-RewriteCond %{REQUEST_URI} !\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|json)$
-# Redirecionar apenas rotas do SPA para index.html
-RewriteRule ^(?!cdm-admin/).*$ /cdm-admin/index.html [L]
-RewriteRule ^cdm-admin/(?!assets/).*$ /cdm-admin/index.html [L]
+RewriteRule . /index.html [L]
 
 # Security Headers
 <IfModule mod_headers.c>

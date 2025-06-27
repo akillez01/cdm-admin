@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debug CDM Admin App</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 20px; }
+      .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+      .success { background: #d4edda; color: #155724; }
+      .error { background: #f8d7da; color: #721c24; }
+      .warning { background: #fff3cd; color: #856404; }
+      .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+  </head>
+  <body>
+    <h1>CDM Admin - Debug Page</h1>
+    <div id="debug-info"></div>
+    
+    <script>
+      const debug = document.getElementById('debug-info');
+      
+      function addStatus(message, type = 'info') {
+        const div = document.createElement('div');
+        div.className = `status ${type}`;
+        div.innerHTML = message;
+        debug.appendChild(div);
+      }
+      
+      addStatus('🔧 Iniciando diagnóstico...', 'info');
+      
+      // Testar se o JS está funcionando
+      addStatus('✅ JavaScript está funcionando', 'success');
+      
+      // Testar fetch para a API
+      fetch('https://sleepy-allen.66-179-92-233.plesk.page/api/health')
+        .then(response => {
+          if (response.ok) {
+            addStatus('✅ API está respondendo', 'success');
+            return response.json();
+          } else {
+            addStatus(`⚠️ API respondeu com status: ${response.status}`, 'warning');
+            throw new Error(`HTTP ${response.status}`);
+          }
+        })
+        .then(data => {
+          addStatus(`✅ API Response: ${JSON.stringify(data)}`, 'success');
+        })
+        .catch(error => {
+          addStatus(`❌ Erro na API: ${error.message}`, 'error');
+        });
+      
+      // Testar se o React pode ser carregado
+      try {
+        // Simular carregamento do React
+        addStatus('🔄 Testando carregamento do React...', 'info');
+        
+        // Testar se podemos criar um elemento React básico
+        const testDiv = document.createElement('div');
+        testDiv.id = 'react-test';
+        testDiv.innerHTML = '<p>Aguardando React...</p>';
+        document.body.appendChild(testDiv);
+        
+        // Simular um delay para ver se o React carrega
+        setTimeout(() => {
+          const reactTest = document.getElementById('react-test');
+          if (reactTest) {
+            reactTest.innerHTML = '<p style="color: green;">✅ React container está presente</p>';
+          }
+        }, 2000);
+        
+      } catch (error) {
+        addStatus(`❌ Erro no teste React: ${error.message}`, 'error');
+      }
+      
+      // Informações do navegador
+      addStatus(`🌐 Navegador: ${navigator.userAgent}`, 'info');
+      addStatus(`📍 URL atual: ${window.location.href}`, 'info');
+      addStatus(`🔒 Protocolo: ${window.location.protocol}`, 'info');
+      
+      // Testar console
+      console.log('CDM Admin Debug: JavaScript funcionando');
+      addStatus('✅ Console.log funcionando (verifique o DevTools)', 'success');
+    </script>
+  </body>
+</html>

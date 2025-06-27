@@ -54,7 +54,21 @@ export function useSupabase() {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+    
+    // Mapear os nomes dos campos do banco para os nomes TypeScript
+    return data.map(item => ({
+      id: item.id,
+      name: item.name,
+      category: item.category,
+      quantity: item.quantity,
+      location: item.location,
+      value: item.value,
+      supplier: item.supplier,
+      purchaseDate: item.purchase_date,
+      minQuantity: item.min_quantity,
+      status: item.status,
+      notes: item.notes
+    }));
   }, []);
 
   const addInventoryItem = useCallback(async (

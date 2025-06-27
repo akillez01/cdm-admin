@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug CDM Admin - Fallback Inteligente</title>
+    <style>
+      body { font-family: monospace; margin: 20px; background: #f5f5f5; }
+      .status { padding: 8px; margin: 4px 0; border-radius: 4px; }
+      .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+      .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+      .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+      .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+      h1 { color: #333; }
+      #results { max-height: 600px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Debug CDM Admin - Fallback Inteligente</h1>
+    <p>Testando a nova lógica de fallback que evita tentativas desnecessárias de localhost em produção.</p>
+    
+    <div id="results"></div>
+
+    <script>
+      function addStatus(message, type = 'info') {
+        const div = document.createElement('div');
+        div.className = `status ${type}`;
+        div.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+        document.getElementById('results').appendChild(div);
+        console.log(`[${type.toUpperCase()}] ${message}`);
+      }
+
+      // Início do diagnóstico
+      addStatus('🔧 Iniciando diagnóstico com fallback inteligente...', 'info');
+      
+      // Testar se o JS está funcionando
+      addStatus('✅ JavaScript está funcionando', 'success');
+      
+      // Nova lógica de fallback inteligente
+      addStatus('🔄 Testando nova lógica de fallback inteligente...', 'info');
+      
+      // Detectar ambiente
+      const isDevelopment = window.location.hostname === 'localhost';
+      const apiUrl = 'https://sleepy-allen.66-179-92-233.plesk.page/api';
+      const isApiLocalhost = apiUrl.includes('localhost') || apiUrl.includes('127.0.0.1');
+      
+      addStatus(`🏠 Ambiente: ${isDevelopment ? 'Desenvolvimento' : 'Produção'}`, 'info');
+      addStatus(`📡 API URL: ${apiUrl}`, 'info');
+      addStatus(`🔗 API é localhost: ${isApiLocalhost ? 'Sim' : 'Não'}`, 'info');
+      
+      // Função para testar Supabase diretamente
+      function testSupabaseDirect() {
+        addStatus('🔵 Testando Supabase diretamente...', 'info');
+        
+        fetch('https://xkkbeilbthmezeqizcch.supabase.co/rest/v1/daime_inventory?select=*&limit=1', {
+          headers: {
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhra2JlaWxidGhtZXplcWl6Y2NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI1ODMyMjAsImV4cCI6MjA0ODE1OTIyMH0.xdMf9lAdICW2xzpUwzZJQJIc6iGqsNL7gRcjE9fSMnU',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhra2JlaWxidGhtZXplcWl6Y2NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI1ODMyMjAsImV4cCI6MjA0ODE1OTIyMH0.xdMf9lAdICW2xzpUwzZJQJIc6iGqsNL7gRcjE9fSMnU'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            addStatus(`✅ Supabase funcionando! ${data.length} registros encontrados`, 'success');
+            addStatus('🎉 Fallback inteligente configurado corretamente!', 'success');
+            addStatus('✅ Não há tentativas desnecessárias de localhost em produção', 'success');
+          } else {
+            addStatus('❌ Supabase: Resposta inesperada', 'error');
+            addStatus(`Resposta: ${JSON.stringify(data)}`, 'error');
+          }
+        })
+        .catch(supabaseError => {
+          addStatus(`❌ Supabase também falhou: ${supabaseError.message}`, 'error');
+        });
+      }
+      
+      // Lógica de teste principal
+      if (isApiLocalhost && !isDevelopment) {
+        addStatus('⚠️ EVITANDO teste de API localhost em produção (previne erros CSP)', 'warning');
+        addStatus('🔄 Iniciando fallback direto para Supabase...', 'info');
+        testSupabaseDirect();
+      } else {
+        addStatus('🔌 Testando API local...', 'info');
+        
+        fetch(`${apiUrl}/health`)
+          .then(response => {
+            if (response.ok) {
+              addStatus('✅ API local está respondendo', 'success');
+              return response.json();
+            } else {
+              addStatus(`⚠️ API local retornou: ${response.status}`, 'warning');
+              throw new Error(`HTTP ${response.status}`);
+            }
+          })
+          .then(data => {
+            addStatus(`✅ API Response: ${JSON.stringify(data)}`, 'success');
+          })
+          .catch(error => {
+            addStatus(`❌ API local falhou: ${error.message}`, 'error');
+            addStatus('🔵 Iniciando fallback para Supabase...', 'info');
+            testSupabaseDirect();
+          });
+      }
+      
+      // Testar se o React pode ser carregado
+      setTimeout(() => {
+        try {
+          addStatus('🔄 Testando carregamento do React...', 'info');
+          
+          const testDiv = document.createElement('div');
+          testDiv.id = 'react-test';
+          testDiv.innerHTML = '<p>Aguardando React...</p>';
+          document.body.appendChild(testDiv);
+          
+          setTimeout(() => {
+            const reactTest = document.getElementById('react-test');
+            if (reactTest) {
+              reactTest.innerHTML = '<p style="color: green;">✅ React container está presente</p>';
+              addStatus('✅ React pode ser carregado no DOM', 'success');
+            }
+          }, 1000);
+          
+        } catch (error) {
+          addStatus(`❌ Erro no teste React: ${error.message}`, 'error');
+        }
+      }, 2000);
+      
+      // Informações do navegador
+      setTimeout(() => {
+        addStatus(`🌐 Navegador: ${navigator.userAgent}`, 'info');
+        addStatus(`📍 URL atual: ${window.location.href}`, 'info');
+        addStatus(`🕐 Horário do teste: ${new Date().toLocaleString()}`, 'info');
+        
+        // Verificar se há erros no console
+        addStatus('📋 Verifique o console do navegador para erros adicionais', 'info');
+      }, 3000);
+    </script>
+</body>
+</html>

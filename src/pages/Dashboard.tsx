@@ -1,25 +1,25 @@
 import { Card, CardContent } from "@/components/ui/Card";
 import { Progress } from "@/components/ui/Progress";
 import {
-  CalendarDays,
-  ChevronDown,
-  ChevronUp,
-  Package,
-  PiggyBank,
-  Users,
+    CalendarDays,
+    ChevronDown,
+    ChevronUp,
+    Package,
+    PiggyBank,
+    Users,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
-  CartesianGrid,
-  Cell,
-  Line,
-  LineChart,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
+    CartesianGrid,
+    Cell,
+    Line,
+    LineChart,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
 } from "recharts";
 import { useSupabase } from "../hooks/useSupabase";
 import { Member } from '../types';
@@ -480,8 +480,11 @@ const GoalsCard: React.FC = () => {
                 </div>
                 <Progress 
                   value={progress} 
-                  className="h-1 sm:h-2"
-                  indicatorColor={progress > 75 ? "bg-green-500" : progress > 50 ? "bg-yellow-500" : "bg-red-500"}
+                  className={`h-1 sm:h-2 ${
+                    progress > 75 ? '[&>div]:bg-green-500' : 
+                    progress > 50 ? '[&>div]:bg-yellow-500' : 
+                    '[&>div]:bg-red-500'
+                  }`}
                 />
               </div>
             );
