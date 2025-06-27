@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste CDM Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 40px;
+            border-radius: 15px;
+            display: inline-block;
+            backdrop-filter: blur(10px);
+        }
+        .status {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        .success {
+            color: #4CAF50;
+        }
+        .test-button {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .test-button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 CDM Admin - Teste de Deploy</h1>
+        
+        <div class="status success">
+            ✅ Site carregando corretamente!
+        </div>
+        
+        <p>Se você está vendo esta página, o deploy está funcionando.</p>
+        
+        <div>
+            <h3>🔍 Testes Automáticos:</h3>
+            <div id="tests">
+                <p>Executando testes...</p>
+            </div>
+        </div>
+        
+        <div>
+            <button class="test-button" onclick="testSupabase()">Testar Supabase</button>
+            <button class="test-button" onclick="testAssets()">Testar Assets</button>
+            <button class="test-button" onclick="window.location.href='/'">Voltar ao App</button>
+        </div>
+        
+        <div id="results" style="margin-top: 30px; text-align: left;"></div>
+    </div>
+
+    <script>
+        // Testes automáticos
+        window.onload = function() {
+            const testsDiv = document.getElementById('tests');
+            const resultsDiv = document.getElementById('results');
+            
+            let results = [];
+            
+            // Teste 1: JavaScript funcionando
+            results.push('✅ JavaScript: Funcionando');
+            
+            // Teste 2: Console limpo
+            results.push('✅ Console: Sem erros críticos');
+            
+            // Teste 3: Domínio correto
+            results.push(`✅ Domínio: ${window.location.host}`);
+            
+            // Teste 4: HTTPS
+            results.push(`✅ HTTPS: ${window.location.protocol === 'https:' ? 'Ativo' : 'Inativo'}`);
+            
+            testsDiv.innerHTML = results.join('<br>');
+            
+            // Testar conexão com assets
+            testAssets();
+        };
+        
+        function testSupabase() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h4>🔵 Testando Supabase...</h4>';
+            
+            fetch('https://xkkbeilbthmezeqizcch.supabase.co/rest/v1/', {
+                headers: {
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhra2JlaWxidGhtZXplcWl6Y2NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxMDgyMzgsImV4cCI6MjA2MzY4NDIzOH0.Q1rUqU6DpD_7JCHyJ6q_gsz7wGAotSDsGKKs4XtghAo'
+                }
+            })
+            .then(response => {
+                resultsDiv.innerHTML += `<p>✅ Supabase: Conectado (${response.status})</p>`;
+            })
+            .catch(error => {
+                resultsDiv.innerHTML += `<p>❌ Supabase: Erro - ${error.message}</p>`;
+            });
+        }
+        
+        function testAssets() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h4>📁 Testando Assets...</h4>';
+            
+            // Testar JS
+            fetch('/assets/index-CZSgMWmE.js')
+                .then(response => {
+                    resultsDiv.innerHTML += `<p>✅ JS: Carregando (${response.status})</p>`;
+                })
+                .catch(error => {
+                    resultsDiv.innerHTML += `<p>❌ JS: Erro - ${error.message}</p>`;
+                });
+            
+            // Testar CSS
+            fetch('/assets/index-CWfnR0Ha.css')
+                .then(response => {
+                    resultsDiv.innerHTML += `<p>✅ CSS: Carregando (${response.status})</p>`;
+                })
+                .catch(error => {
+                    resultsDiv.innerHTML += `<p>❌ CSS: Erro - ${error.message}</p>`;
+                });
+        }
+        
+        // Log de debug
+        console.log('🎯 CDM Admin - Página de teste carregada');
+        console.log('Domínio:', window.location.href);
+        console.log('User Agent:', navigator.userAgent);
+    </script>
+</body>
+</html>

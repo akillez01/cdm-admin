@@ -1,0 +1,45 @@
+CONFIGURAÇÃO NECESSÁRIA NO PLESK:
+=====================================
+DOMÍNIO: sleepy-allen.66-179-92-233.plesk.page
+
+1. UPLOAD DOS ARQUIVOS:
+   - Faça upload de todos os arquivos desta pasta para o diretório público do seu domínio
+   - Diretório: httpdocs/ (raiz do domínio)
+
+2. VARIÁVEIS DE AMBIENTE (Node.js):
+   - Vá em "Node.js" no painel Plesk
+   - Configure as variáveis de ambiente:
+
+   FRONTEND (se usar subdomain):
+   VITE_USE_SUPABASE=false
+   VITE_API_URL=https://sleepy-allen.66-179-92-233.plesk.page/api
+   VITE_BASE_URL=/
+
+   BACKEND (se hospedar o Node.js):
+   NODE_ENV=production
+   DB_HOST=localhost
+   DB_USER=seu_usuario_mysql
+   DB_PASSWORD=sua_senha_mysql
+   DB_NAME=cdm_admin
+   JWT_SECRET=sua_chave_jwt_muito_segura
+   PORT=3001
+   FRONTEND_URL=https://sleepy-allen.66-179-92-233.plesk.page
+
+3. BANCO DE DADOS:
+   - Crie um banco MySQL no Plesk
+   - Importe o schema: server/database/mysql_schema.sql
+   - Configure as credenciais nas variáveis de ambiente
+
+4. SUBDOMÍNIO/PASTA (Opcional):
+   - Se usar subpasta: /cdm-admin
+   - Configure VITE_BASE_URL=/cdm-admin
+
+5. HTTPS:
+   - Ative certificado SSL no Plesk
+   - Force redirecionamento HTTPS
+
+6. BACKEND API (Opcional):
+   - Se hospedar o backend Node.js no Plesk:
+   - Faça upload da pasta server/
+   - Configure como aplicação Node.js
+   - Instale dependências: npm install
