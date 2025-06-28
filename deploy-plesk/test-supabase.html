@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Supabase - CDM Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Teste de Conexão Supabase - CDM Admin</h1>
+        
+        <div id="results"></div>
+        
+        <button onclick="runTests()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            🔄 Executar Testes
+        </button>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://xkkbeilbthmezeqizcch.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhra2JlaWxidGhtZXplcWl6Y2NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI1ODMyMjAsImV4cCI6MjA0ODE1OTIyMH0.xdMf9lAdICW2xzpUwzZJQJIc6iGqsNL7gRcjE9fSMnU';
+
+        function addResult(type, title, content) {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-result ${type}`;
+            resultDiv.innerHTML = `<strong>${title}</strong><br>${content}`;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        async function testSupabaseConnection() {
+            addResult('info', '🔄 Testando Conexão', 'Iniciando testes de conectividade...');
+
+            try {
+                // Teste 1: Conectividade básica
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+
+                if (response.ok) {
+                    addResult('success', '✅ Conectividade', 'Supabase API acessível');
+                } else {
+                    addResult('error', '❌ Conectividade', `HTTP ${response.status}: ${response.statusText}`);
+                    return false;
+                }
+
+                // Teste 2: Buscar tabelas disponíveis
+                const tablesResponse = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (tablesResponse.ok) {
+                    addResult('success', '✅ API Disponível', 'REST API funcionando');
+                } else {
+                    addResult('error', '❌ API Error', `Código: ${tablesResponse.status}`);
+                }
+
+                // Teste 3: Testar tabela members
+                try {
+                    const membersResponse = await fetch(`${SUPABASE_URL}/rest/v1/members?select=count`, {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Accept': 'application/json',
+                            'Prefer': 'count=exact'
+                        }
+                    });
+
+                    if (membersResponse.ok) {
+                        const data = await membersResponse.text();
+                        addResult('success', '✅ Tabela Members', `Resposta: ${data.substring(0, 100)}...`);
+                    } else {
+                        addResult('error', '❌ Tabela Members', `HTTP ${membersResponse.status}: ${membersResponse.statusText}`);
+                    }
+                } catch (err) {
+                    addResult('error', '❌ Tabela Members', `Erro: ${err.message}`);
+                }
+
+                // Teste 4: Testar tabela inventory_items
+                try {
+                    const inventoryResponse = await fetch(`${SUPABASE_URL}/rest/v1/inventory_items?select=count`, {
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Accept': 'application/json',
+                            'Prefer': 'count=exact'
+                        }
+                    });
+
+                    if (inventoryResponse.ok) {
+                        const data = await inventoryResponse.text();
+                        addResult('success', '✅ Tabela Inventory', `Resposta: ${data.substring(0, 100)}...`);
+                    } else {
+                        addResult('error', '❌ Tabela Inventory', `HTTP ${inventoryResponse.status}: ${inventoryResponse.statusText}`);
+                    }
+                } catch (err) {
+                    addResult('error', '❌ Tabela Inventory', `Erro: ${err.message}`);
+                }
+
+                return true;
+            } catch (error) {
+                addResult('error', '❌ Erro Geral', `${error.message}`);
+                return false;
+            }
+        }
+
+        async function runTests() {
+            document.getElementById('results').innerHTML = '';
+            
+            addResult('info', '🚀 Início dos Testes', new Date().toLocaleString());
+            addResult('info', '🔧 Configuração', `URL: ${SUPABASE_URL}<br>Key: ${SUPABASE_KEY.substring(0, 20)}...`);
+            
+            await testSupabaseConnection();
+            
+            addResult('info', '🏁 Testes Concluídos', new Date().toLocaleString());
+        }
+
+        // Executar testes automaticamente ao carregar
+        window.onload = runTests;
+    </script>
+</body>
+</html>

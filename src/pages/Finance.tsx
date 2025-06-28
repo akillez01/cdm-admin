@@ -1,11 +1,11 @@
 import {
-  BarChart2,
-  CreditCard,
-  DollarSign,
-  Download,
-  PieChart,
-  TrendingUp,
-  Wallet
+    BarChart2,
+    CreditCard,
+    DollarSign,
+    Download,
+    PieChart,
+    TrendingUp,
+    Wallet
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import ChartComponent from '../components/dashboard/ChartComponent';
@@ -134,8 +134,8 @@ const Finance: React.FC = () => {
 
   return (
     <div className="animate-fade-in p-4 sm:p-6">
-      <header className="mb-4 sm:mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-1 sm:mb-2">
+      <header className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-1 sm:mb-2 font-display">
           Finanças
         </h1>
         <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
@@ -144,7 +144,7 @@ const Finance: React.FC = () => {
       </header>
 
       {/* Financial Metrics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6 mb-6 sm:mb-8">
         <MetricsCard
           title="Receitas Totais"
           value={financialMetrics.totalRevenue}

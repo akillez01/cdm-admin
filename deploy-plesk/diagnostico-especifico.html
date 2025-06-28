@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Diagnóstico Específico - CDM Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .test-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s ease;
+        }
+        .test-card:hover {
+            transform: translateY(-5px);
+        }
+        .test-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .success { background: #4caf50; }
+        .error { background: #f44336; }
+        .warning { background: #ff9800; }
+        .loading { background: #2196f3; animation: pulse 1s infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        .result-item {
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+            font-size: 14px;
+        }
+        .result-item.success { border-color: #4caf50; background: rgba(76,175,80,0.1); }
+        .result-item.error { border-color: #f44336; background: rgba(244,67,54,0.1); }
+        .result-item.warning { border-color: #ff9800; background: rgba(255,152,0,0.1); }
+        
+        .logo-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .logo-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 120px;
+        }
+        .logo-item img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+            object-fit: cover;
+        }
+        .logo-item .path {
+            font-size: 11px;
+            margin-top: 8px;
+            word-break: break-all;
+            opacity: 0.8;
+        }
+        
+        .action-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .btn {
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        .btn.secondary {
+            background: linear-gradient(45deg, #2196f3, #1976d2);
+        }
+        
+        pre {
+            background: rgba(0,0,0,0.4);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            margin: 10px 0;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .environment-info {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, rgba(76,175,80,0.2), rgba(76,175,80,0.1));
+            border: 2px solid #4caf50;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .problem-solver {
+            background: linear-gradient(135deg, rgba(255,152,0,0.2), rgba(255,152,0,0.1));
+            border: 2px solid #ff9800;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Diagnóstico Específico CDM Admin</h1>
+            <p>Identificando problemas específicos de logo e dados após deploy no Plesk</p>
+        </div>
+
+        <div class="environment-info">
+            <h3>📋 Informações do Ambiente</h3>
+            <div id="env-info">Coletando...</div>
+        </div>
+
+        <div class="test-grid">
+            <div class="test-card">
+                <div class="test-title">
+                    🖼️ Teste de Logo
+                    <span class="status loading" id="logo-status"></span>
+                </div>
+                <div class="logo-preview" id="logo-preview"></div>
+                <div id="logo-results"></div>
+            </div>
+
+            <div class="test-card">
+                <div class="test-title">
+                    🔗 Conectividade Supabase
+                    <span class="status loading" id="supabase-status"></span>
+                </div>
+                <div id="supabase-results"></div>
+            </div>
+
+            <div class="test-card">
+                <div class="test-title">
+                    📁 Assets e Recursos
+                    <span class="status loading" id="assets-status"></span>
+                </div>
+                <div id="assets-results"></div>
+            </div>
+
+            <div class="test-card">
+                <div class="test-title">
+                    🛡️ Content Security Policy
+                    <span class="status loading" id="csp-status"></span>
+                </div>
+                <div id="csp-results"></div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn" onclick="runFullDiagnosis()">🚀 Executar Diagnóstico Completo</button>
+            <button class="btn secondary" onclick="testSingleIssue()">🎯 Teste Focado</button>
+            <button class="btn secondary" onclick="location.reload()">🔄 Reiniciar</button>
+        </div>
+
+        <div id="summary" class="summary-card" style="display:none;">
+            <h3>📊 Resumo do Diagnóstico</h3>
+            <div id="summary-content"></div>
+        </div>
+
+        <div id="problem-solver" class="problem-solver" style="display:none;">
+            <h3>🔧 Soluções Recomendadas</h3>
+            <div id="solutions-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configurações
+        const LOGO_PATHS = [
+            './images/cdmlogo.png',
+            '/cdm-admin/images/cdmlogo.png',
+            'images/cdmlogo.png',
+            '/images/cdmlogo.png',
+            '../images/cdmlogo.png',
+            '/cdm-admin/assets/cdmlogo.png',
+            './assets/cdmlogo.png'
+        ];
+
+        const SUPABASE_CONFIG = {
+            url: 'https://xkkbeilbthmezeqizcch.supabase.co',
+            key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhra2JlaWxidGhtZXplcWl6Y2NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI1ODMyMjAsImV4cCI6MjA0ODE1OTIyMH0.xdMf9lAdICW2xzpUwzZJQJIc6iGqsNL7gRcjE9fSMnU'
+        };
+
+        let testResults = {
+            logo: { working: [], broken: [] },
+            supabase: { status: null, error: null },
+            assets: { css: null, js: null },
+            csp: { violations: [] }
+        };
+
+        // Coleta informações do ambiente
+        function collectEnvironmentInfo() {
+            const info = {
+                url: window.location.href,
+                protocol: window.location.protocol,
+                host: window.location.host,
+                pathname: window.location.pathname,
+                userAgent: navigator.userAgent,
+                viewport: `${window.innerWidth}x${window.innerHeight}`,
+                timestamp: new Date().toLocaleString()
+            };
+
+            document.getElementById('env-info').innerHTML = `
+                <div class="result-item success">
+                    <strong>URL:</strong> ${info.url}<br>
+                    <strong>Host:</strong> ${info.host}<br>
+                    <strong>Protocolo:</strong> ${info.protocol}<br>
+                    <strong>Caminho:</strong> ${info.pathname}<br>
+                    <strong>Viewport:</strong> ${info.viewport}<br>
+                    <strong>Timestamp:</strong> ${info.timestamp}
+                </div>
+            `;
+        }
+
+        // Teste específico de logo
+        async function testLogo() {
+            const preview = document.getElementById('logo-preview');
+            const results = document.getElementById('logo-results');
+            
+            preview.innerHTML = '';
+            results.innerHTML = '';
+            
+            for (const path of LOGO_PATHS) {
+                const logoItem = document.createElement('div');
+                logoItem.className = 'logo-item';
+                
+                try {
+                    const img = new Image();
+                    const loadPromise = new Promise((resolve, reject) => {
+                        img.onload = () => resolve(true);
+                        img.onerror = () => reject(false);
+                        img.src = path;
+                    });
+
+                    logoItem.innerHTML = `
+                        <img src="${path}" alt="Logo" style="opacity: 0.5;">
+                        <div class="path">Carregando...</div>
+                    `;
+                    preview.appendChild(logoItem);
+
+                    const loaded = await loadPromise;
+                    
+                    logoItem.innerHTML = `
+                        <img src="${path}" alt="Logo">
+                        <div class="path">✅ ${path}</div>
+                    `;
+                    
+                    testResults.logo.working.push(path);
+                    
+                    results.innerHTML += `
+                        <div class="result-item success">✅ <strong>${path}</strong> - Carregou com sucesso</div>
+                    `;
+                    
+                } catch (error) {
+                    logoItem.innerHTML = `
+                        <div style="width:60px;height:60px;background:rgba(255,0,0,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;">❌</div>
+                        <div class="path">❌ ${path}</div>
+                    `;
+                    
+                    testResults.logo.broken.push(path);
+                    
+                    results.innerHTML += `
+                        <div class="result-item error">❌ <strong>${path}</strong> - Falha ao carregar</div>
+                    `;
+                }
+            }
+
+            // Atualizar status
+            const status = document.getElementById('logo-status');
+            if (testResults.logo.working.length > 0) {
+                status.className = 'status success';
+            } else {
+                status.className = 'status error';
+            }
+        }
+
+        // Teste de conectividade Supabase
+        async function testSupabase() {
+            const results = document.getElementById('supabase-results');
+            results.innerHTML = '<div class="result-item">🔄 Testando conectividade Supabase...</div>';
+
+            try {
+                // Teste básico de conectividade
+                const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/`, {
+                    headers: {
+                        'apikey': SUPABASE_CONFIG.key,
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.key}`
+                    }
+                });
+
+                if (response.ok) {
+                    results.innerHTML = `
+                        <div class="result-item success">✅ Conectividade Supabase OK</div>
+                        <div class="result-item success">Status: ${response.status}</div>
+                    `;
+                    
+                    // Teste de tabelas específicas
+                    try {
+                        const inventoryResponse = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/inventory_items?limit=1`, {
+                            headers: {
+                                'apikey': SUPABASE_CONFIG.key,
+                                'Authorization': `Bearer ${SUPABASE_CONFIG.key}`
+                            }
+                        });
+
+                        if (inventoryResponse.ok) {
+                            const data = await inventoryResponse.json();
+                            results.innerHTML += `
+                                <div class="result-item success">✅ Tabela inventory_items acessível</div>
+                                <div class="result-item">📊 Dados encontrados: ${data.length} itens</div>
+                            `;
+                        } else {
+                            results.innerHTML += `
+                                <div class="result-item warning">⚠️ Tabela inventory_items não acessível (${inventoryResponse.status})</div>
+                            `;
+                        }
+                    } catch (tableError) {
+                        results.innerHTML += `
+                            <div class="result-item error">❌ Erro ao acessar tabela: ${tableError.message}</div>
+                        `;
+                    }
+
+                    testResults.supabase.status = 'success';
+                    document.getElementById('supabase-status').className = 'status success';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                results.innerHTML = `
+                    <div class="result-item error">❌ Erro de conectividade Supabase</div>
+                    <div class="result-item error">Erro: ${error.message}</div>
+                `;
+                testResults.supabase.status = 'error';
+                testResults.supabase.error = error.message;
+                document.getElementById('supabase-status').className = 'status error';
+            }
+        }
+
+        // Teste de assets
+        async function testAssets() {
+            const results = document.getElementById('assets-results');
+            results.innerHTML = '<div class="result-item">🔄 Verificando assets...</div>';
+
+            const assetTests = [];
+
+            // Verificar CSS
+            const cssLinks = document.querySelectorAll('link[rel="stylesheet"]');
+            cssLinks.forEach(link => {
+                assetTests.push({
+                    type: 'CSS',
+                    url: link.href,
+                    element: link
+                });
+            });
+
+            // Verificar JS
+            const jsScripts = document.querySelectorAll('script[src]');
+            jsScripts.forEach(script => {
+                assetTests.push({
+                    type: 'JS',
+                    url: script.src,
+                    element: script
+                });
+            });
+
+            results.innerHTML = '';
+
+            for (const asset of assetTests) {
+                try {
+                    const response = await fetch(asset.url, { method: 'HEAD' });
+                    if (response.ok) {
+                        results.innerHTML += `
+                            <div class="result-item success">✅ ${asset.type}: ${asset.url.split('/').pop()}</div>
+                        `;
+                    } else {
+                        results.innerHTML += `
+                            <div class="result-item error">❌ ${asset.type}: ${asset.url.split('/').pop()} (${response.status})</div>
+                        `;
+                    }
+                } catch (error) {
+                    results.innerHTML += `
+                        <div class="result-item error">❌ ${asset.type}: ${asset.url.split('/').pop()} (Erro de rede)</div>
+                    `;
+                }
+            }
+
+            document.getElementById('assets-status').className = 'status success';
+        }
+
+        // Teste de CSP
+        function testCSP() {
+            const results = document.getElementById('csp-results');
+            
+            // Verificar se há meta CSP
+            const cspMeta = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+            
+            if (cspMeta) {
+                const cspContent = cspMeta.getAttribute('content');
+                results.innerHTML = `
+                    <div class="result-item success">✅ CSP encontrada</div>
+                    <div class="result-item">
+                        <strong>Política atual:</strong>
+                        <pre>${cspContent}</pre>
+                    </div>
+                `;
+                
+                // Verificar se inclui configurações necessárias
+                const requiredDirectives = [
+                    { name: 'connect-src', required: 'supabase.co', found: cspContent.includes('supabase.co') },
+                    { name: 'script-src', required: 'unsafe-eval', found: cspContent.includes('unsafe-eval') },
+                    { name: 'img-src', required: 'data:', found: cspContent.includes('data:') }
+                ];
+
+                requiredDirectives.forEach(directive => {
+                    if (directive.found) {
+                        results.innerHTML += `
+                            <div class="result-item success">✅ ${directive.name} inclui '${directive.required}'</div>
+                        `;
+                    } else {
+                        results.innerHTML += `
+                            <div class="result-item warning">⚠️ ${directive.name} não inclui '${directive.required}'</div>
+                        `;
+                    }
+                });
+            } else {
+                results.innerHTML = `
+                    <div class="result-item warning">⚠️ Nenhuma política CSP encontrada</div>
+                `;
+            }
+
+            document.getElementById('csp-status').className = 'status success';
+        }
+
+        // Gerar resumo e soluções
+        function generateSummaryAndSolutions() {
+            const summary = document.getElementById('summary');
+            const summaryContent = document.getElementById('summary-content');
+            const problemSolver = document.getElementById('problem-solver');
+            const solutionsContent = document.getElementById('solutions-content');
+
+            // Resumo
+            let summaryHtml = '';
+            let problemsFound = false;
+
+            if (testResults.logo.working.length === 0) {
+                summaryHtml += '<div class="result-item error">❌ Nenhuma logo carregou corretamente</div>';
+                problemsFound = true;
+            } else {
+                summaryHtml += `<div class="result-item success">✅ ${testResults.logo.working.length} logos funcionando</div>`;
+            }
+
+            if (testResults.supabase.status === 'error') {
+                summaryHtml += '<div class="result-item error">❌ Problemas de conectividade Supabase</div>';
+                problemsFound = true;
+            } else {
+                summaryHtml += '<div class="result-item success">✅ Supabase funcionando</div>';
+            }
+
+            summaryContent.innerHTML = summaryHtml;
+            summary.style.display = 'block';
+
+            // Soluções
+            if (problemsFound) {
+                let solutionsHtml = '<h4>🔧 Soluções Recomendadas:</h4>';
+
+                if (testResults.logo.working.length === 0) {
+                    solutionsHtml += `
+                        <div class="result-item warning">
+                            <strong>Problema de Logo:</strong><br>
+                            1. Verifique se o arquivo existe em: <code>./images/cdmlogo.png</code><br>
+                            2. Verifique permissões do arquivo (chmod 644)<br>
+                            3. Verifique se o diretório images tem permissão de leitura (chmod 755)<br>
+                            4. Teste diretamente: <a href="./images/cdmlogo.png" target="_blank">./images/cdmlogo.png</a>
+                        </div>
+                    `;
+                }
+
+                if (testResults.supabase.status === 'error') {
+                    solutionsHtml += `
+                        <div class="result-item warning">
+                            <strong>Problema Supabase:</strong><br>
+                            1. Verifique se as chaves estão corretas<br>
+                            2. Verifique se o domínio está autorizado no Supabase<br>
+                            3. Verifique CORS e CSP<br>
+                            4. Erro específico: ${testResults.supabase.error || 'Desconhecido'}
+                        </div>
+                    `;
+                }
+
+                solutionsContent.innerHTML = solutionsHtml;
+                problemSolver.style.display = 'block';
+            } else {
+                problemSolver.style.display = 'none';
+            }
+        }
+
+        // Executar diagnóstico completo
+        async function runFullDiagnosis() {
+            collectEnvironmentInfo();
+            
+            // Resetar status
+            document.querySelectorAll('.status').forEach(status => {
+                status.className = 'status loading';
+            });
+
+            // Executar testes
+            await testLogo();
+            await testSupabase();
+            await testAssets();
+            testCSP();
+            
+            // Gerar resumo
+            generateSummaryAndSolutions();
+        }
+
+        // Teste focado
+        async function testSingleIssue() {
+            const issue = prompt('Qual problema você quer testar?\n1 - Logo\n2 - Supabase\n3 - Assets\n4 - CSP\n\nDigite o número:');
+            
+            switch(issue) {
+                case '1': await testLogo(); break;
+                case '2': await testSupabase(); break;
+                case '3': await testAssets(); break;
+                case '4': testCSP(); break;
+                default: alert('Opção inválida');
+            }
+        }
+
+        // Executar na inicialização
+        window.addEventListener('load', () => {
+            collectEnvironmentInfo();
+            console.log('🔍 Diagnóstico específico carregado. Use runFullDiagnosis() para executar todos os testes.');
+        });
+    </script>
+</body>
+</html>

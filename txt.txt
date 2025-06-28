@@ -1,0 +1,27 @@
+Base de Dados
+admin-cdm
+u4Q@EtEfz2kc#kq2
+
+
+
+
+
+dicionar Base de Dados
+Nome do banco de dados
+Servidor do banco de dados
+localhost:3306 (padrão para MariaDB, v10.5.27)
+Site relacionado
+Nenhum site relacionado
+Usuários
+
+Criar um usuário do banco de dados padrão. O Plesk acessará o banco de dados em nome desse usuário. Se nenhum usuário de banco de dados estiver atribuído no banco de dados, ele não será acessível.
+Criar um usuário das bases de dados
+Nome do usuário do banco de dados
+Senha
+O usuário tem acesso a todas as bases de dados na assinatura selecionada
+Controle de acesso
+Permitir somente conexões locais
+Permitir conexões remotas de qualquer host
+Permitir conexões remotas de
+
+Por favor, entre em contato com seu provedor de hospedagem e certifique-se que a opção especificada acima esteja em conformidade com as atuais regras de firewall, para o acesso da entrada ao MariaDB/MySQL.

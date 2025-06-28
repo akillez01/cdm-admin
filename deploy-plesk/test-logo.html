@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Logo CDM</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 600px;
+        }
+        .logo-test {
+            margin: 20px 0;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+        }
+        .logo-test img {
+            margin: 10px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Teste de Carregamento da Logo CDM</h1>
+        
+        <div class="logo-test">
+            <h3>1. Logo com caminho absoluto (/cdm-admin/images/cdmlogo.png)</h3>
+            <img src="/cdm-admin/images/cdmlogo.png" alt="CDM Logo Absoluto" 
+                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; background: white;"
+                 onload="showStatus('absolute', true)" 
+                 onerror="showStatus('absolute', false)">
+            <div id="status-absolute" class="status"></div>
+        </div>
+
+        <div class="logo-test">
+            <h3>2. Logo com caminho relativo (./images/cdmlogo.png)</h3>
+            <img src="./images/cdmlogo.png" alt="CDM Logo Relativo" 
+                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; background: white;"
+                 onload="showStatus('relative', true)" 
+                 onerror="showStatus('relative', false)">
+            <div id="status-relative" class="status"></div>
+        </div>
+
+        <div class="logo-test">
+            <h3>3. Logo sem barra inicial (images/cdmlogo.png)</h3>
+            <img src="images/cdmlogo.png" alt="CDM Logo Sem Barra" 
+                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; background: white;"
+                 onload="showStatus('nobarra', true)" 
+                 onerror="showStatus('nobarra', false)">
+            <div id="status-nobarra" class="status"></div>
+        </div>
+
+        <div class="logo-test">
+            <h3>4. Logo caminho base (../images/cdmlogo.png)</h3>
+            <img src="../images/cdmlogo.png" alt="CDM Logo Base" 
+                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; background: white;"
+                 onload="showStatus('base', true)" 
+                 onerror="showStatus('base', false)">
+            <div id="status-base" class="status"></div>
+        </div>
+
+        <h3>Informações do Sistema:</h3>
+        <div id="info" style="background: #e9ecef; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 12px;"></div>
+    </div>
+
+    <script>
+        function showStatus(type, success) {
+            const statusDiv = document.getElementById('status-' + type);
+            if (success) {
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = '✅ Logo carregada com sucesso!';
+            } else {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '❌ Falha ao carregar a logo';
+            }
+        }
+
+        // Mostrar informações do sistema
+        document.getElementById('info').innerHTML = `
+            <strong>URL atual:</strong> ${window.location.href}<br>
+            <strong>Base URL:</strong> ${window.location.origin}<br>
+            <strong>Caminho:</strong> ${window.location.pathname}<br>
+            <strong>User Agent:</strong> ${navigator.userAgent}<br>
+            <strong>Timestamp:</strong> ${new Date().toISOString()}
+        `;
+
+        // Testar fetch das imagens
+        setTimeout(() => {
+            const paths = ['/images/cdmlogo.png', './images/cdmlogo.png', 'images/cdmlogo.png'];
+            paths.forEach(path => {
+                fetch(path)
+                    .then(response => {
+                        console.log(`${path}: ${response.status} - ${response.statusText}`);
+                        if (!response.ok) {
+                            console.error(`Erro ao carregar ${path}:`, response);
+                        }
+                    })
+                    .catch(error => {
+                        console.error(`Erro de rede para ${path}:`, error);
+                    });
+            });
+        }, 1000);
+    </script>
+</body>
+</html>

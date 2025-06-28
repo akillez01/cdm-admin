@@ -4,7 +4,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/', // Para Plesk, geralmente é raiz
+  base: '/cdm-admin/', // Caminho correto para Plesk
   optimizeDeps: {
     exclude: ['lucide-react'],
   },

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Correção Específica - CDM Admin</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .fix-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+        }
+        .problem-card {
+            background: rgba(255,152,0,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #ff9800;
+        }
+        .command {
+            background: rgba(0,0,0,0.4);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            font-size: 14px;
+            border-left: 4px solid #2196f3;
+        }
+        .btn {
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .success { background: rgba(76,175,80,0.2); border-left: 4px solid #4caf50; }
+        .error { background: rgba(244,67,54,0.2); border-left: 4px solid #f44336; }
+        .warning { background: rgba(255,152,0,0.2); border-left: 4px solid #ff9800; }
+        .checklist {
+            background: rgba(33,150,243,0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .checklist h4 {
+            margin-top: 0;
+            color: #2196f3;
+        }
+        .checklist-item {
+            margin: 8px 0;
+            padding: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Correção Específica CDM Admin</h1>
+            <p>Soluções rápidas para problemas comuns após deploy no Plesk</p>
+        </div>
+
+        <div class="problem-card">
+            <h3>❌ Problema: Logo não aparece</h3>
+            <p><strong>Causa comum:</strong> Problemas de permissão ou caminho incorreto</p>
+            
+            <div class="checklist">
+                <h4>✅ Checklist de Correção:</h4>
+                <div class="checklist-item">1. Verificar se o arquivo existe</div>
+                <div class="checklist-item">2. Verificar permissões do arquivo</div>
+                <div class="checklist-item">3. Verificar permissões do diretório</div>
+                <div class="checklist-item">4. Testar acesso direto</div>
+            </div>
+
+            <button class="btn" onclick="testLogoFix()">🔍 Testar Correção da Logo</button>
+        </div>
+
+        <div class="fix-card">
+            <h3>🔧 Correção 1: Permissões de Arquivo</h3>
+            <p>Execute no terminal SSH do Plesk:</p>
+            <div class="command">
+# Ir para o diretório do projeto
+cd /var/www/vhosts/seu-dominio.com/httpdocs/cdm-admin
+
+# Corrigir permissões do diretório images
+chmod 755 images/
+
+# Corrigir permissões da logo
+chmod 644 images/cdmlogo.png
+
+# Verificar se o arquivo existe
+ls -la images/cdmlogo.png</div>
+        </div>
+
+        <div class="fix-card">
+            <h3>🔧 Correção 2: Verificação de Caminho</h3>
+            <p>Teste direto no navegador:</p>
+            <div class="command">https://seu-dominio.plesk.page/cdm-admin/images/cdmlogo.png</div>
+            <p>Se não funcionar, verifique se o arquivo foi enviado corretamente.</p>
+        </div>
+
+        <div class="fix-card">
+            <h3>🔧 Correção 3: Problemas de CSP</h3>
+            <p>Se o console do navegador mostrar erros de CSP, verifique se o index.html contém:</p>
+            <div class="command">img-src 'self' data: https://*;</div>
+            <button class="btn" onclick="testCSP()">🛡️ Testar CSP</button>
+        </div>
+
+        <div class="problem-card">
+            <h3>❌ Problema: Dados não carregam do Supabase</h3>
+            <p><strong>Causa comum:</strong> CORS, CSP ou chaves incorretas</p>
+            
+            <div class="checklist">
+                <h4>✅ Checklist de Correção:</h4>
+                <div class="checklist-item">1. Verificar chaves do Supabase</div>
+                <div class="checklist-item">2. Verificar CORS no Supabase</div>
+                <div class="checklist-item">3. Verificar CSP</div>
+                <div class="checklist-item">4. Verificar conectividade</div>
+            </div>
+
+            <button class="btn" onclick="testSupabaseFix()">🔗 Testar Correção Supabase</button>
+        </div>
+
+        <div class="fix-card">
+            <h3>🔧 Correção 4: Configuração Supabase</h3>
+            <p>1. Vá para <a href="https://supabase.com/dashboard" target="_blank">Supabase Dashboard</a></p>
+            <p>2. Em Authentication > URL Configuration, adicione:</p>
+            <div class="command">https://seu-dominio.plesk.page/cdm-admin</div>
+            <p>3. Verifique se as chaves estão corretas no arquivo .env</p>
+        </div>
+
+        <div class="fix-card">
+            <h3>🔧 Correção 5: Rebuild e Redeploy</h3>
+            <p>Se nada funcionar, faça um rebuild completo:</p>
+            <div class="command">
+# No seu ambiente local
+npm run build
+
+# Recriar o ZIP de deploy
+cd deploy-plesk
+zip -r ../cdm-admin-fix.zip .
+
+# Fazer upload do novo ZIP</div>
+        </div>
+
+        <div id="test-results" style="margin-top: 30px;"></div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="runAllFixes()">🚀 Executar Todas as Correções</button>
+            <button class="btn" onclick="location.href='./diagnostico-especifico.html'">🔍 Diagnóstico Completo</button>
+        </div>
+    </div>
+
+    <script>
+        function showResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('test-results');
+            const statusClass = type === 'success' ? 'success' : type === 'error' ? 'error' : 'warning';
+            resultsDiv.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+        }
+
+        async function testLogoFix() {
+            clearResults();
+            showResult('🔍 Testando correção da logo...', 'info');
+
+            const logoPaths = [
+                './images/cdmlogo.png',
+                '/cdm-admin/images/cdmlogo.png',
+                'images/cdmlogo.png'
+            ];
+
+            let logoFound = false;
+            for (const path of logoPaths) {
+                try {
+                    const response = await fetch(path, { method: 'HEAD' });
+                    if (response.ok) {
+                        showResult(`✅ Logo encontrada em: ${path}`, 'success');
+                        logoFound = true;
+                        break;
+                    }
+                } catch (error) {
+                    console.log(`Erro ao testar ${path}:`, error);
+                }
+            }
+
+            if (!logoFound) {
+                showResult('❌ Logo não encontrada em nenhum caminho', 'error');
+                showResult('💡 Verifique se o arquivo foi enviado corretamente', 'warning');
+                showResult('💡 Execute: chmod 644 images/cdmlogo.png', 'warning');
+            }
+        }
+
+        async function testCSP() {
+            clearResults();
+            showResult('🛡️ Testando CSP...', 'info');
+
+            // Verificar se há meta CSP na página
+            const cspMeta = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+            if (cspMeta) {
+                const content = cspMeta.getAttribute('content');
+                if (content.includes('img-src')) {
+                    showResult('✅ CSP configurada para imagens', 'success');
+                } else {
+                    showResult('❌ CSP não permite imagens adequadamente', 'error');
+                }
+                
+                if (content.includes('supabase.co')) {
+                    showResult('✅ CSP permite Supabase', 'success');
+                } else {
+                    showResult('❌ CSP não permite Supabase', 'error');
+                }
+            } else {
+                showResult('⚠️ CSP não encontrada', 'warning');
+            }
+        }
+
+        async function testSupabaseFix() {
+            clearResults();
+            showResult('🔗 Testando correção Supabase...', 'info');
+
+            const supabaseUrl = 'https://xkkbeilbthmezeqizcch.supabase.co';
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhra2JlaWxidGhtZXplcWl6Y2NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI1ODMyMjAsImV4cCI6MjA0ODE1OTIyMH0.xdMf9lAdICW2xzpUwzZJQJIc6iGqsNL7gRcjE9fSMnU';
+
+            try {
+                const response = await fetch(`${supabaseUrl}/rest/v1/`, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+
+                if (response.ok) {
+                    showResult('✅ Supabase conectado com sucesso', 'success');
+                    
+                    // Testar tabela específica
+                    const tableTest = await fetch(`${supabaseUrl}/rest/v1/inventory_items?limit=1`, {
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`
+                        }
+                    });
+
+                    if (tableTest.ok) {
+                        showResult('✅ Tabela inventory_items acessível', 'success');
+                    } else {
+                        showResult('❌ Tabela inventory_items não acessível', 'error');
+                    }
+                } else {
+                    showResult(`❌ Erro de conectividade Supabase: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Erro de rede Supabase: ${error.message}`, 'error');
+                showResult('💡 Verifique CORS no dashboard do Supabase', 'warning');
+            }
+        }
+
+        async function runAllFixes() {
+            clearResults();
+            showResult('🚀 Executando todas as correções...', 'info');
+            
+            await testLogoFix();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await testCSP();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            await testSupabaseFix();
+            
+            showResult('✅ Todas as correções testadas!', 'success');
+            showResult('📋 Revise os resultados acima para identificar problemas específicos', 'info');
+        }
+
+        // Auto-executar teste básico na carga
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                showResult('🔧 Página de correção carregada. Clique nos botões para testar correções específicas.', 'info');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

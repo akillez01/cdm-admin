@@ -1,0 +1,440 @@
+{
+  "info": {
+    "name": "CDM Admin API",
+    "description": "Collection completa da API do CDM Admin System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('token', response.token);",
+                  "    console.log('Token salvo:', response.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@cdm.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Verificar Token",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Inventário Geral",
+      "item": [
+        {
+          "name": "Listar Inventário",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/inventory",
+              "host": ["{{base_url}}"],
+              "path": ["inventory"]
+            }
+          }
+        },
+        {
+          "name": "Criar Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Vela Branca\",\n  \"description\": \"Velas para cerimônias\",\n  \"category\": \"Ritual\",\n  \"quantity\": 50,\n  \"unit\": \"unidades\",\n  \"minimum_stock\": 10,\n  \"location\": \"Armazém A\",\n  \"notes\": \"Verificar qualidade antes do uso\",\n  \"supplier\": \"Fornecedor ABC\",\n  \"purchase_date\": \"2025-01-15\",\n  \"cost\": 2.50\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/inventory",
+              "host": ["{{base_url}}"],
+              "path": ["inventory"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 45,\n  \"notes\": \"Quantidade atualizada após uso na cerimônia\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/inventory/1",
+              "host": ["{{base_url}}"],
+              "path": ["inventory", "1"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Item",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/inventory/1",
+              "host": ["{{base_url}}"],
+              "path": ["inventory", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🌿 Inventário do Daime",
+      "item": [
+        {
+          "name": "Listar Daime",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/daime-inventory",
+              "host": ["{{base_url}}"],
+              "path": ["daime-inventory"]
+            }
+          }
+        },
+        {
+          "name": "Listar Daime - Com Filtros",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/daime-inventory?status=disponivel&graduacao=Força 3",
+              "host": ["{{base_url}}"],
+              "path": ["daime-inventory"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "disponivel"
+                },
+                {
+                  "key": "graduacao",
+                  "value": "Força 3"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Criar Item Daime",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codigo\": \"DAI-2025-001\",\n  \"graduacao\": \"Força 3\",\n  \"litros\": 10.5,\n  \"dataFeitio\": \"2025-01-20\",\n  \"responsavelFeitio\": \"João Silva\",\n  \"localFeitio\": \"Casa de Feitio Principal\",\n  \"tipoFeitio\": \"Novo\",\n  \"panela\": \"Panela 1\",\n  \"observacoes\": \"Feitio realizado com concentração total\",\n  \"status\": \"disponivel\",\n  \"dataValidade\": \"2025-07-20\",\n  \"localArmazenamento\": \"Despensa Sagrada\",\n  \"temperatura\": 18.5,\n  \"ph\": 4.2,\n  \"cor\": \"Amarelo\",\n  \"consistencia\": \"Líquida\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/daime-inventory",
+              "host": ["{{base_url}}"],
+              "path": ["daime-inventory"]
+            }
+          }
+        },
+        {
+          "name": "Atualizar Item Daime",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"litros\": 8.0,\n  \"status\": \"consumido\",\n  \"observacoes\": \"Utilizado na cerimônia de 25/06/2025\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/daime-inventory/1",
+              "host": ["{{base_url}}"],
+              "path": ["daime-inventory", "1"]
+            }
+          }
+        },
+        {
+          "name": "Deletar Item Daime",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "url": {
+              "raw": "{{base_url}}/daime-inventory/1",
+              "host": ["{{base_url}}"],
+              "path": ["daime-inventory", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Membros",
+      "item": [
+        {
+          "name": "Listar Membros",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/members",
+              "host": ["{{base_url}}"],
+              "path": ["members"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 Transações",
+      "item": [
+        {
+          "name": "Listar Transações",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📅 Eventos",
+      "item": [
+        {
+          "name": "Listar Eventos",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/events",
+              "host": ["{{base_url}}"],
+              "path": ["events"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Estatísticas",
+      "item": [
+        {
+          "name": "Dashboard Stats",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/stats",
+              "host": ["{{base_url}}"],
+              "path": ["stats"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -467,6 +467,8 @@ app.get('/api/transactions', authenticateToken, async (req, res) => {
 
 // ===== ROTAS DE INVENTÁRIO GERAL =====
 
+// ===== ROTAS DE INVENTÁRIO GERAL =====
+
 // Listar inventário geral
 app.get('/api/inventory', authenticateToken, async (req, res) => {
     try {
@@ -479,6 +481,139 @@ app.get('/api/inventory', authenticateToken, async (req, res) => {
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });
+
+// Adicionar item ao inventário geral
+app.post('/api/inventory',
+    authenticateToken,
+    requireAdmin,
+    [
+        body('name').notEmpty().withMessage('Nome é obrigatório'),
+        body('category').notEmpty().withMessage('Categoria é obrigatória'),
+        body('quantity').isNumeric().withMessage('Quantidade deve ser um número'),
+        body('unit').notEmpty().withMessage('Unidade é obrigatória')
+    ],
+    handleValidationErrors,
+    async (req, res) => {
+        try {
+            const {
+                name, description, category, quantity, unit, 
+                minimum_stock, location, notes, supplier, 
+                purchase_date, expiry_date, cost
+            } = req.body;
+            
+            const [result] = await pool.execute(
+                `INSERT INTO inventory_items (
+                    name, description, category, quantity, unit, 
+                    minimum_stock, location, notes, supplier, 
+                    purchase_date, expiry_date, cost
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    name, description || null, category, quantity, unit,
+                    minimum_stock || 0, location || null, notes || null,
+                    supplier || null, purchase_date || null, 
+                    expiry_date || null, cost || null
+                ]
+            );
+            
+            // Buscar o item criado para retornar
+            const [created] = await pool.execute(
+                'SELECT * FROM inventory_items WHERE id = ?',
+                [result.insertId]
+            );
+            
+            res.status(201).json(created[0]);
+        } catch (error) {
+            console.error('Erro ao criar item do inventário:', error);
+            res.status(500).json({ error: 'Erro interno do servidor' });
+        }
+    }
+);
+
+// Atualizar item do inventário geral
+app.put('/api/inventory/:id',
+    authenticateToken,
+    requireAdmin,
+    [
+        body('name').optional().notEmpty().withMessage('Nome não pode estar vazio'),
+        body('category').optional().notEmpty().withMessage('Categoria não pode estar vazia'),
+        body('quantity').optional().isNumeric().withMessage('Quantidade deve ser um número'),
+        body('unit').optional().notEmpty().withMessage('Unidade não pode estar vazia')
+    ],
+    handleValidationErrors,
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+            const updateFields = [];
+            const updateValues = [];
+            
+            // Campos que podem ser atualizados
+            const allowedFields = [
+                'name', 'description', 'category', 'quantity', 'unit',
+                'minimum_stock', 'location', 'notes', 'supplier',
+                'purchase_date', 'expiry_date', 'cost'
+            ];
+            
+            // Construir query dinâmica apenas com campos fornecidos
+            allowedFields.forEach(field => {
+                if (req.body[field] !== undefined) {
+                    updateFields.push(`${field} = ?`);
+                    updateValues.push(req.body[field]);
+                }
+            });
+            
+            if (updateFields.length === 0) {
+                return res.status(400).json({ error: 'Nenhum campo para atualizar fornecido' });
+            }
+            
+            updateValues.push(id);
+            
+            const [result] = await pool.execute(
+                `UPDATE inventory_items SET ${updateFields.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+                updateValues
+            );
+            
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ error: 'Item não encontrado' });
+            }
+            
+            // Buscar o item atualizado para retornar
+            const [updated] = await pool.execute(
+                'SELECT * FROM inventory_items WHERE id = ?',
+                [id]
+            );
+            
+            res.json(updated[0]);
+        } catch (error) {
+            console.error('Erro ao atualizar item do inventário:', error);
+            res.status(500).json({ error: 'Erro interno do servidor' });
+        }
+    }
+);
+
+// Deletar item do inventário geral
+app.delete('/api/inventory/:id',
+    authenticateToken,
+    requireAdmin,
+    async (req, res) => {
+        try {
+            const { id } = req.params;
+            
+            const [result] = await pool.execute(
+                'DELETE FROM inventory_items WHERE id = ?',
+                [id]
+            );
+            
+            if (result.affectedRows === 0) {
+                return res.status(404).json({ error: 'Item não encontrado' });
+            }
+            
+            res.json({ message: 'Item deletado com sucesso' });
+        } catch (error) {
+            console.error('Erro ao deletar item do inventário:', error);
+            res.status(500).json({ error: 'Erro interno do servidor' });
+        }
+    }
+);
 
 // ===== ROTAS DE EVENTOS =====
 

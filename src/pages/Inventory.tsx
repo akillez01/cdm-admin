@@ -296,34 +296,34 @@ const Inventory: React.FC = () => {
   const daimeReservado = daimeInventory.filter(item => item.status === 'reservado').length;
 
   return (
-    <div className="animate-fade-in">
-      <div className="mb-6">
-        <h1 className="text-3xl font-display font-bold text-gray-800 dark:text-white mb-2">
+    <div className="animate-fade-in p-4 sm:p-6">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-800 dark:text-white mb-2">
           Inventário
         </h1>
-        <p className="text-gray-500 dark:text-gray-400">
+        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
           Gerencie o controle de estoque, equipamentos e sacramento.
         </p>
       </div>
       
-      {/* Tabs */}
-      <div className="mb-8">
-        <nav className="flex space-x-8" aria-label="Tabs">
+      {/* Tabs Mobile Friendly */}
+      <div className="mb-6 sm:mb-8">
+        <nav className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-8" aria-label="Tabs">
           <button
             onClick={() => setActiveTab('geral')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`py-2 px-4 sm:px-1 border-b-2 font-medium text-sm rounded-md sm:rounded-none transition-colors ${
               activeTab === 'geral'
-                ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                ? 'border-primary-500 text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 sm:bg-transparent'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
             }`}
           >
-            Inventário Geral
+            📦 Inventário Geral
           </button>
           <button
             onClick={() => setActiveTab('daime')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`py-2 px-4 sm:px-1 border-b-2 font-medium text-sm rounded-md sm:rounded-none transition-colors ${
               activeTab === 'daime'
-                ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                ? 'border-primary-500 text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 sm:bg-transparent'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
             }`}
           >
@@ -335,7 +335,7 @@ const Inventory: React.FC = () => {
 
       {activeTab === 'geral' && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
             <MetricsCard
               title="Total de Itens"
               value={totalItems}
@@ -428,7 +428,8 @@ const Inventory: React.FC = () => {
               </div>
             </div>
             
-            <div className="overflow-x-auto">
+            {/* Tabela para md+ */}
+            <div className="overflow-x-auto hidden md:block">
               <table className="table w-full">
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
@@ -530,6 +531,83 @@ const Inventory: React.FC = () => {
                   )}
                 </tbody>
               </table>
+            </div>
+            
+            {/* Cards para mobile */}
+            <div className="flex flex-col gap-4 md:hidden">
+              {daimeInventory.length > 0 ? (
+                daimeInventory.map((item) => (
+                  <div key={item.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg shadow p-4 flex flex-col gap-3">
+                    <div className="flex items-center justify-between">
+                      <div className="text-base font-semibold text-gray-800 dark:text-white">
+                        {item.codigo}
+                      </div>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        item.status === 'disponivel' ? 'bg-green-100 text-green-800' :
+                        item.status === 'reservado' ? 'bg-yellow-100 text-yellow-800' :
+                        item.status === 'consumido' ? 'bg-gray-100 text-gray-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {item.status === 'disponivel' ? 'Disponível' :
+                         item.status === 'reservado' ? 'Reservado' :
+                         item.status === 'consumido' ? 'Consumido' : 'Vencido'}
+                      </span>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2 text-sm">
+                      <span className={`px-2 py-1 rounded ${
+                        item.graduacao === 'Força 5' ? 'bg-red-100 text-red-700' :
+                        item.graduacao === 'Força 4' ? 'bg-orange-100 text-orange-700' :
+                        item.graduacao === 'Força 3' ? 'bg-yellow-100 text-yellow-700' :
+                        item.graduacao === 'Força 2' ? 'bg-blue-100 text-blue-700' :
+                        'bg-green-100 text-green-700'
+                      }`}>
+                        {item.graduacao}
+                      </span>
+                      <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                        {item.litros}L
+                      </span>
+                      <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                        {item.tipoFeitio}
+                      </span>
+                    </div>
+                    
+                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                      <div><strong>Data:</strong> {new Date(item.dataFeitio).toLocaleDateString('pt-BR')}</div>
+                      <div><strong>Responsável:</strong> {item.responsavelFeitio}</div>
+                      <div><strong>Local:</strong> {item.localArmazenamento}</div>
+                    </div>
+                    
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        onClick={() => {
+                          setSelectedDaime(item);
+                          setIsViewingDaime(true);
+                        }}
+                        className="text-primary-500 hover:text-primary-600 text-sm"
+                      >
+                        Ver
+                      </button>
+                      <button
+                        onClick={() => handleEditDaime(item)}
+                        className="text-secondary-500 hover:text-secondary-600 text-sm"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleDeleteDaime(item.id)}
+                        className="text-red-500 hover:text-red-600 text-sm"
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                  Nenhum registro de sacramento encontrado.
+                </div>
+              )}
             </div>
           </div>
         </>

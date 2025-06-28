@@ -112,115 +112,73 @@ const Events: React.FC = () => {
   );
 
   return (
-    <div className="animate-fade-in">
-      <div className="mb-6">
-        <h1 className="text-3xl font-display font-bold text-gray-800 dark:text-white mb-2">
+    <div className="animate-fade-in p-4 sm:p-6">
+      <header className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white mb-1 sm:mb-2 font-display">
           Eventos
         </h1>
-        <p className="text-gray-500 dark:text-gray-400">
-          Gerencie eventos, reuniões e encontros da igreja.
+        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
+          Gerencie eventos, trabalhos e atividades da igreja.
         </p>
-      </div>
+      </header>
       
-      <div className="mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="card bg-primary-500 text-white">
-            <div className="flex items-center mb-4">
-              <Calendar size={24} className="mr-2 text-secondary-500" />
-              <h3 className="text-xl font-semibold">Próximo Evento</h3>
+      <div className="mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
+          <div className="card bg-primary-500 text-white p-4 sm:p-6">
+            <div className="flex items-center mb-3 sm:mb-4">
+              <Calendar size={20} className="mr-2 text-secondary-500 sm:w-6 sm:h-6" />
+              <h3 className="text-base sm:text-lg font-semibold">Próximo Evento</h3>
             </div>
-            
             {nextEvent ? (
-              <>
-                <h4 className="text-lg font-semibold mb-2">{nextEvent.title}</h4>
-                
-                <div className="space-y-2 mb-3">
+              <div>
+                <h4 className="text-lg sm:text-xl font-bold mb-2">{nextEvent.title}</h4>
+                <div className="text-sm sm:text-base text-white/80 space-y-1">
                   <div className="flex items-center">
-                    <Calendar size={16} className="mr-2 text-secondary-300" />
-                    <span>{new Date(nextEvent.startDate).toLocaleDateString('pt-BR')}</span>
+                    <Clock size={14} className="mr-2 sm:w-4 sm:h-4" />
+                    {new Date(nextEvent.startDate).toLocaleDateString('pt-BR')}
                   </div>
-                  
                   <div className="flex items-center">
-                    <Clock size={16} className="mr-2 text-secondary-300" />
-                    <span>
-                      {new Date(nextEvent.startDate).toLocaleTimeString('pt-BR', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                      })} - {new Date(nextEvent.endDate).toLocaleTimeString('pt-BR', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                      })}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <MapPin size={16} className="mr-2 text-secondary-300" />
-                    <span>{nextEvent.location}</span>
+                    <MapPin size={14} className="mr-2 sm:w-4 sm:h-4" />
+                    {nextEvent.location || 'Local a definir'}
                   </div>
                 </div>
-                
-                <button 
-                  onClick={() => handleViewEvent(nextEvent)}
-                  className="mt-2 btn bg-white text-primary-500 hover:bg-gray-100"
-                >
-                  Ver Detalhes
-                </button>
-              </>
+              </div>
             ) : (
-              <p className="text-center py-4">Nenhum evento próximo agendado</p>
+              <p className="text-sm sm:text-base text-white/80">Nenhum evento programado</p>
             )}
           </div>
           
-          <div className="card md:col-span-2">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
-              <Calendar size={20} className="mr-2 text-primary-500" />
-              Eventos Recorrentes
-            </h3>
-            
-            <div className="space-y-4">
-              {[
-                { 
-                  title: 'Culto Dominical', 
-                  time: 'Domingo, 09:00 - 12:00',
-                  location: 'Templo Principal',
-                  frequency: 'Semanal',
-                },
-                { 
-                  title: 'Culto de Oração', 
-                  time: 'Quarta, 19:30 - 21:00',
-                  location: 'Templo Principal',
-                  frequency: 'Semanal',
-                },
-                { 
-                  title: 'Estudo Bíblico', 
-                  time: 'Sexta, 19:30 - 21:00',
-                  location: 'Sala de Estudos',
-                  frequency: 'Semanal',
-                },
-              ].map((event, index) => (
-                <div 
-                  key={index}
-                  className="flex items-center p-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-100 dark:border-gray-700"
-                >
-                  <div className="p-2 rounded-full bg-primary-100 dark:bg-primary-800 text-primary-500 mr-3">
-                    <Calendar size={18} />
-                  </div>
-                  <div className="flex-1">
-                    <span className="font-medium text-gray-800 dark:text-white">{event.title}</span>
-                    <div className="flex flex-col sm:flex-row sm:space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                      <span className="flex items-center">
-                        <Clock size={14} className="mr-1" />{event.time}
-                      </span>
-                      <span className="flex items-center">
-                        <MapPin size={14} className="mr-1" />{event.location}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="ml-2 text-xs px-2 py-1 rounded-full bg-primary-50 dark:bg-primary-900 text-primary-600 dark:text-primary-200">
-                    {event.frequency}
-                  </span>
-                </div>
-              ))}
+          <div className="card p-4 sm:p-6">
+            <div className="flex items-center mb-3 sm:mb-4">
+              <Users size={20} className="mr-2 text-primary-500 sm:w-6 sm:h-6" />
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">
+                Total de Eventos
+              </h3>
+            </div>
+            <p className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">
+              {events.length}
+            </p>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+              Este ano
+            </p>
+          </div>
+          
+          <div className="card p-4 sm:p-6">
+            <div className="flex items-center mb-3 sm:mb-4">
+              <Calendar size={20} className="mr-2 text-secondary-500 sm:w-6 sm:h-6" />
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white">
+                Status
+              </h3>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600 dark:text-gray-300">Planejados</span>
+                <span className="font-medium">{events.filter(e => e.status === 'planned').length}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600 dark:text-gray-300">Realizados</span>
+                <span className="font-medium">{events.filter(e => e.status === 'completed').length}</span>
+              </div>
             </div>
           </div>
         </div>

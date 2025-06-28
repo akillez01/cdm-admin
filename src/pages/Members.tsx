@@ -123,12 +123,12 @@ const Members: React.FC = () => {
   }
 
   return (
-    <div className="animate-fade-in">
-      <div className="mb-6">
-        <h1 className="text-3xl font-display font-bold text-gray-800 dark:text-white mb-2">
+    <div className="animate-fade-in p-4 sm:p-6">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-gray-800 dark:text-white mb-1 sm:mb-2">
           Membros
         </h1>
-        <p className="text-gray-500 dark:text-gray-400">
+        <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
           Gerencie os membros, visitantes e seus dados.
         </p>
       </div>

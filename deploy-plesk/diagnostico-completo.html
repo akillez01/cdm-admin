@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Diagnóstico Completo - CDM Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: rgba(255,255,255,0.05);
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #00ff88;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .success { background: rgba(0,255,136,0.2); border-left: 4px solid #00ff88; }
+        .error { background: rgba(255,82,82,0.2); border-left: 4px solid #ff5252; }
+        .warning { background: rgba(255,193,7,0.2); border-left: 4px solid #ffc107; }
+        .info { background: rgba(33,150,243,0.2); border-left: 4px solid #2196f3; }
+        
+        .logo-test {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+        .logo-test img {
+            display: block;
+            margin: 10px auto;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #00ff88, #00d4ff);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        pre {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            border-left: 4px solid #00ff88;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-green { background: #00ff88; }
+        .status-red { background: #ff5252; }
+        .status-yellow { background: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Diagnóstico Completo - CDM Admin</h1>
+        <p>Este teste vai verificar TODOS os problemas possíveis no seu deploy.</p>
+        
+        <div class="test-section">
+            <h2>🌐 Informações do Sistema</h2>
+            <div id="system-info"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🖼️ Teste de Logo - Múltiplos Caminhos</h2>
+            <div id="logo-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔗 Teste de Conectividade Supabase</h2>
+            <div id="supabase-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📁 Teste de Assets e Recursos</h2>
+            <div id="assets-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🛡️ Teste de CSP (Content Security Policy)</h2>
+            <div id="csp-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Diagnóstico Final</h2>
+            <div id="final-diagnosis"></div>
+        </div>
+
+        <button onclick="runAllTests()">🚀 Executar Diagnóstico Completo</button>
+        <button onclick="location.reload()">🔄 Reiniciar Testes</button>
+    </div>
+
+    <script>
+        const LOGO_PATHS = [
+            '/cdm-admin/images/cdmlogo.png',
+            './images/cdmlogo.png', 
+            'images/cdmlogo.png',
+            '/images/cdmlogo.png',
+            '../images/cdmlogo.png',
+            'cdm-admin/images/cdmlogo.png'
+        ];
+
+        const SUPABASE_URL = 'https://xkkbeilbthmezeqizcch.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhra2JlaWxidGhtZXplcWl6Y2NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI1ODMyMjAsImV4cCI6MjA0ODE1OTIyMH0.xdMf9lAdICW2xzpUwzZJQJIc6iGqsNL7gRcjE9fSMnU';
+
+        let testResults = {
+            logo: {},
+            supabase: {},
+            assets: {},
+            csp: {},
+            system: {}
+        };
+
+        function addResult(containerId, type, title, content, status = null) {
+            const container = document.getElementById(containerId);
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            
+            const statusIndicator = status ? `<span class="status-indicator status-${status}"></span>` : '';
+            resultDiv.innerHTML = `${statusIndicator}<strong>${title}</strong><br>${content}`;
+            container.appendChild(resultDiv);
+        }
+
+        function showSystemInfo() {
+            const info = {
+                'URL Atual': window.location.href,
+                'Origem': window.location.origin,
+                'Caminho': window.location.pathname,
+                'User Agent': navigator.userAgent.substring(0, 80) + '...',
+                'Linguagem': navigator.language,
+                'Timestamp': new Date().toISOString(),
+                'Referrer': document.referrer || 'Direto',
+                'Protocolo': window.location.protocol,
+                'Host': window.location.host
+            };
+
+            let infoHtml = '<pre>';
+            for (const [key, value] of Object.entries(info)) {
+                infoHtml += `${key}: ${value}\n`;
+            }
+            infoHtml += '</pre>';
+
+            document.getElementById('system-info').innerHTML = infoHtml;
+            testResults.system = info;
+        }
+
+        async function testLogoPaths() {
+            const container = document.getElementById('logo-tests');
+            container.innerHTML = '';
+
+            addResult('logo-tests', 'info', '🔄 Iniciando Testes de Logo', 'Testando todos os caminhos possíveis...', 'yellow');
+
+            let workingPaths = [];
+            let failedPaths = [];
+
+            for (const path of LOGO_PATHS) {
+                try {
+                    const logoDiv = document.createElement('div');
+                    logoDiv.className = 'logo-test';
+                    logoDiv.innerHTML = `
+                        <h4>${path}</h4>
+                        <img src="${path}" alt="Teste Logo" style="width: 50px; height: 50px;" 
+                             onload="logoSuccess('${path}')" 
+                             onerror="logoError('${path}')">
+                        <div id="status-${path.replace(/[^a-zA-Z0-9]/g, '_')}">Carregando...</div>
+                    `;
+                    container.appendChild(logoDiv);
+
+                    // Teste com fetch também
+                    try {
+                        const response = await fetch(path, { method: 'HEAD' });
+                        if (response.ok) {
+                            workingPaths.push(path);
+                            testResults.logo[path] = 'success';
+                        } else {
+                            failedPaths.push(`${path} (${response.status})`);
+                            testResults.logo[path] = `failed-${response.status}`;
+                        }
+                    } catch (fetchError) {
+                        failedPaths.push(`${path} (fetch error)`);
+                        testResults.logo[path] = 'fetch-error';
+                    }
+                } catch (error) {
+                    failedPaths.push(`${path} (${error.message})`);
+                    testResults.logo[path] = 'error';
+                }
+            }
+
+            // Resultados
+            setTimeout(() => {
+                if (workingPaths.length > 0) {
+                    addResult('logo-tests', 'success', '✅ Caminhos Funcionando', workingPaths.join('<br>'), 'green');
+                } else {
+                    addResult('logo-tests', 'error', '❌ Nenhum Caminho Funciona', 'Logo não encontrada em nenhum local', 'red');
+                }
+
+                if (failedPaths.length > 0) {
+                    addResult('logo-tests', 'warning', '⚠️ Caminhos com Falha', failedPaths.join('<br>'), 'yellow');
+                }
+            }, 3000);
+        }
+
+        window.logoSuccess = function(path) {
+            const statusId = `status-${path.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            const statusDiv = document.getElementById(statusId);
+            if (statusDiv) {
+                statusDiv.innerHTML = '<span style="color: #00ff88;">✅ FUNCIONOU!</span>';
+                statusDiv.style.background = 'rgba(0,255,136,0.2)';
+            }
+        };
+
+        window.logoError = function(path) {
+            const statusId = `status-${path.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            const statusDiv = document.getElementById(statusId);
+            if (statusDiv) {
+                statusDiv.innerHTML = '<span style="color: #ff5252;">❌ Falhou</span>';
+                statusDiv.style.background = 'rgba(255,82,82,0.2)';
+            }
+        };
+
+        async function testSupabaseConnection() {
+            addResult('supabase-tests', 'info', '🔄 Testando Supabase', 'Verificando conectividade...', 'yellow');
+
+            try {
+                // Teste 1: Ping básico
+                const pingResponse = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    }
+                });
+
+                if (pingResponse.ok) {
+                    addResult('supabase-tests', 'success', '✅ Conectividade Básica', 'Supabase acessível', 'green');
+                    testResults.supabase.connectivity = 'success';
+                } else {
+                    addResult('supabase-tests', 'error', '❌ Conectividade', `HTTP ${pingResponse.status}`, 'red');
+                    testResults.supabase.connectivity = `failed-${pingResponse.status}`;
+                    return;
+                }
+
+                // Teste 2: Dados reais
+                const tables = ['members', 'inventory_items', 'daime_inventory'];
+                
+                for (const table of tables) {
+                    try {
+                        const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*&limit=5`, {
+                            headers: {
+                                'apikey': SUPABASE_KEY,
+                                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            addResult('supabase-tests', 'success', `✅ Tabela ${table}`, `${data.length} registros encontrados`, 'green');
+                            testResults.supabase[table] = `success-${data.length}`;
+                        } else {
+                            addResult('supabase-tests', 'error', `❌ Tabela ${table}`, `HTTP ${response.status}`, 'red');
+                            testResults.supabase[table] = `failed-${response.status}`;
+                        }
+                    } catch (tableError) {
+                        addResult('supabase-tests', 'error', `❌ Tabela ${table}`, tableError.message, 'red');
+                        testResults.supabase[table] = 'error';
+                    }
+                }
+
+            } catch (error) {
+                addResult('supabase-tests', 'error', '❌ Erro Geral Supabase', error.message, 'red');
+                testResults.supabase.general = 'error';
+            }
+        }
+
+        async function testAssets() {
+            addResult('assets-tests', 'info', '🔄 Testando Assets', 'Verificando CSS e JS...', 'yellow');
+
+            const assets = [
+                './assets/index-D-vrDhA2.js',
+                './assets/index-CWfnR0Ha.css',
+                './vite.svg'
+            ];
+
+            for (const asset of assets) {
+                try {
+                    const response = await fetch(asset, { method: 'HEAD' });
+                    if (response.ok) {
+                        addResult('assets-tests', 'success', '✅ Asset OK', asset, 'green');
+                        testResults.assets[asset] = 'success';
+                    } else {
+                        addResult('assets-tests', 'error', '❌ Asset Falhou', `${asset} (${response.status})`, 'red');
+                        testResults.assets[asset] = `failed-${response.status}`;
+                    }
+                } catch (error) {
+                    addResult('assets-tests', 'error', '❌ Asset Erro', `${asset} (${error.message})`, 'red');
+                    testResults.assets[asset] = 'error';
+                }
+            }
+        }
+
+        function testCSP() {
+            addResult('csp-tests', 'info', '🔄 Testando CSP', 'Verificando Content Security Policy...', 'yellow');
+
+            // Verificar se CSP está bloqueando algo
+            const originalLog = console.log;
+            const originalError = console.error;
+            const originalWarn = console.warn;
+
+            let cspErrors = [];
+
+            console.error = function(...args) {
+                const message = args.join(' ');
+                if (message.includes('Content Security Policy') || message.includes('CSP')) {
+                    cspErrors.push(message);
+                }
+                originalError.apply(console, args);
+            };
+
+            // Testar algumas operações que podem ser bloqueadas
+            try {
+                eval('1+1'); // Teste de eval
+                addResult('csp-tests', 'success', '✅ eval() Permitido', 'JavaScript eval funcionando', 'green');
+                testResults.csp.eval = 'success';
+            } catch (e) {
+                addResult('csp-tests', 'error', '❌ eval() Bloqueado', 'CSP pode estar bloqueando JavaScript', 'red');
+                testResults.csp.eval = 'blocked';
+            }
+
+            // Verificar fetch para Supabase
+            fetch(SUPABASE_URL, { method: 'HEAD' })
+                .then(() => {
+                    addResult('csp-tests', 'success', '✅ Fetch Supabase OK', 'CSP permite conexão', 'green');
+                    testResults.csp.supabase = 'success';
+                })
+                .catch(() => {
+                    addResult('csp-tests', 'error', '❌ Fetch Supabase Bloqueado', 'CSP pode estar bloqueando', 'red');
+                    testResults.csp.supabase = 'blocked';
+                });
+
+            setTimeout(() => {
+                if (cspErrors.length > 0) {
+                    addResult('csp-tests', 'error', '❌ Erros CSP Detectados', cspErrors.join('<br>'), 'red');
+                } else {
+                    addResult('csp-tests', 'success', '✅ CSP OK', 'Nenhum bloqueio detectado', 'green');
+                }
+
+                console.error = originalError;
+            }, 2000);
+        }
+
+        function generateFinalDiagnosis() {
+            const container = document.getElementById('final-diagnosis');
+            container.innerHTML = '';
+
+            addResult('final-diagnosis', 'info', '📊 Análise Completa', 'Gerando diagnóstico baseado nos testes...', 'yellow');
+
+            let diagnosis = [];
+            let fixes = [];
+
+            // Análise da Logo
+            const logoWorking = Object.values(testResults.logo).some(v => v === 'success');
+            if (!logoWorking) {
+                diagnosis.push('🖼️ PROBLEMA: Logo não carrega em nenhum caminho');
+                fixes.push('- Verificar se arquivo cdmlogo.png existe na pasta images/');
+                fixes.push('- Verificar permissões dos arquivos (755 para pastas, 644 para arquivos)');
+                fixes.push('- Testar acesso direto: https://seu-dominio.com/cdm-admin/images/cdmlogo.png');
+            } else {
+                diagnosis.push('🖼️ OK: Logo funciona em pelo menos um caminho');
+            }
+
+            // Análise do Supabase
+            const supabaseWorking = testResults.supabase.connectivity === 'success';
+            if (!supabaseWorking) {
+                diagnosis.push('📊 PROBLEMA: Supabase não conecta');
+                fixes.push('- Verificar se URL está correta no build');
+                fixes.push('- Verificar CSP permite *.supabase.co');
+                fixes.push('- Verificar chave de API');
+            } else {
+                diagnosis.push('📊 OK: Supabase conecta');
+                
+                const tablesOk = ['members', 'inventory_items', 'daime_inventory'].filter(
+                    table => testResults.supabase[table]?.startsWith('success')
+                ).length;
+                
+                if (tablesOk < 3) {
+                    diagnosis.push(`⚠️ AVISO: Apenas ${tablesOk}/3 tabelas funcionando`);
+                    fixes.push('- Verificar se tabelas existem no Supabase');
+                    fixes.push('- Verificar permissões RLS (Row Level Security)');
+                }
+            }
+
+            // Análise dos Assets
+            const assetsOk = Object.values(testResults.assets).filter(v => v === 'success').length;
+            const totalAssets = Object.keys(testResults.assets).length;
+            if (assetsOk < totalAssets) {
+                diagnosis.push(`📁 PROBLEMA: ${assetsOk}/${totalAssets} assets carregando`);
+                fixes.push('- Verificar se todos os arquivos foram copiados');
+                fixes.push('- Verificar .htaccess permite servir arquivos estáticos');
+            } else {
+                diagnosis.push('📁 OK: Todos os assets carregando');
+            }
+
+            // Gerar relatório final
+            let reportHtml = '<div style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 10px; margin: 20px 0;">';
+            reportHtml += '<h3>🎯 DIAGNÓSTICO:</h3>';
+            reportHtml += '<ul>';
+            diagnosis.forEach(item => {
+                reportHtml += `<li>${item}</li>`;
+            });
+            reportHtml += '</ul>';
+
+            if (fixes.length > 0) {
+                reportHtml += '<h3>🔧 CORREÇÕES SUGERIDAS:</h3>';
+                reportHtml += '<ul>';
+                fixes.forEach(fix => {
+                    reportHtml += `<li>${fix}</li>`;
+                });
+                reportHtml += '</ul>';
+            }
+
+            reportHtml += '<h3>📋 DADOS TÉCNICOS:</h3>';
+            reportHtml += `<pre>${JSON.stringify(testResults, null, 2)}</pre>`;
+            reportHtml += '</div>';
+
+            container.innerHTML = reportHtml;
+        }
+
+        async function runAllTests() {
+            // Limpar resultados anteriores
+            testResults = { logo: {}, supabase: {}, assets: {}, csp: {}, system: {} };
+            
+            showSystemInfo();
+            await testLogoPaths();
+            await testSupabaseConnection();
+            await testAssets();
+            testCSP();
+
+            // Gerar diagnóstico final após todos os testes
+            setTimeout(generateFinalDiagnosis, 5000);
+        }
+
+        // Executar automaticamente ao carregar
+        window.onload = runAllTests;
+    </script>
+</body>
+</html>

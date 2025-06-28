@@ -87,6 +87,22 @@ mkdir -p deploy-plesk/
 # Copiar arquivos do build
 cp -r dist/* deploy-plesk/
 
+# Garantir que as imagens estejam copiadas
+echo "🖼️  Copiando imagens estaticas..."
+mkdir -p deploy-plesk/images/
+if [ -d "public/images" ]; then
+    cp -r public/images/* deploy-plesk/images/
+    echo "✅ Imagens copiadas de public/images/ para deploy-plesk/images/"
+else
+    echo "⚠️  Pasta public/images não encontrada"
+fi
+
+# Copiar favicon
+if [ -f "public/vite.svg" ]; then
+    cp public/vite.svg deploy-plesk/
+    echo "✅ Favicon copiado"
+fi
+
 # Copiar arquivos de configuração
 echo "📋 Copiando arquivos de configuração..."
 

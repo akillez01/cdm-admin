@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🖼️ Teste Específico de Logo - CDM Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+        .logo-test {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .logo-test img {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 50%;
+            border: 3px solid white;
+            margin: 10px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success { background: rgba(76,175,80,0.3); border: 2px solid #4caf50; }
+        .error { background: rgba(244,67,54,0.3); border: 2px solid #f44336; }
+        .warning { background: rgba(255,152,0,0.3); border: 2px solid #ff9800; }
+        .btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖼️ Teste Específico de Logo</h1>
+        <p>Este teste verifica se a logo do CDM Admin está sendo servida corretamente pelo servidor.</p>
+
+        <div class="logo-test">
+            <h3>Teste 1: Caminho Relativo</h3>
+            <img src="./images/cdmlogo.png" alt="Logo CDM - Relativo" 
+                 onload="showSuccess('relative')" 
+                 onerror="showError('relative', './images/cdmlogo.png')"
+                 id="logo-relative">
+            <div id="status-relative"></div>
+        </div>
+
+        <div class="logo-test">
+            <h3>Teste 2: Caminho Absoluto</h3>
+            <img src="/cdm-admin/images/cdmlogo.png" alt="Logo CDM - Absoluto" 
+                 onload="showSuccess('absolute')" 
+                 onerror="showError('absolute', '/cdm-admin/images/cdmlogo.png')"
+                 id="logo-absolute">
+            <div id="status-absolute"></div>
+        </div>
+
+        <div class="logo-test">
+            <h3>Teste 3: Caminho Direto</h3>
+            <img src="images/cdmlogo.png" alt="Logo CDM - Direto" 
+                 onload="showSuccess('direct')" 
+                 onerror="showError('direct', 'images/cdmlogo.png')"
+                 id="logo-direct">
+            <div id="status-direct"></div>
+        </div>
+
+        <div id="summary" style="margin-top: 30px;"></div>
+
+        <button class="btn" onclick="testServer()">🔍 Testar Servidor</button>
+        <button class="btn" onclick="location.reload()">🔄 Recarregar</button>
+        <button class="btn" onclick="location.href='./diagnostico-especifico.html'">📊 Diagnóstico Completo</button>
+    </div>
+
+    <script>
+        let results = {
+            relative: null,
+            absolute: null,
+            direct: null
+        };
+
+        function showSuccess(test) {
+            results[test] = true;
+            document.getElementById(`status-${test}`).innerHTML = 
+                '<div class="status success">✅ Logo carregada com sucesso!</div>';
+            updateSummary();
+        }
+
+        function showError(test, path) {
+            results[test] = false;
+            document.getElementById(`status-${test}`).innerHTML = 
+                `<div class="status error">❌ Falha ao carregar: ${path}</div>`;
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const totalTests = Object.keys(results).length;
+            const completedTests = Object.values(results).filter(r => r !== null).length;
+            const successfulTests = Object.values(results).filter(r => r === true).length;
+
+            if (completedTests === totalTests) {
+                const summaryDiv = document.getElementById('summary');
+                
+                if (successfulTests > 0) {
+                    summaryDiv.innerHTML = `
+                        <div class="status success">
+                            ✅ ${successfulTests} de ${totalTests} testes passaram!<br>
+                            A logo está sendo servida corretamente.
+                        </div>
+                    `;
+                } else {
+                    summaryDiv.innerHTML = `
+                        <div class="status error">
+                            ❌ Nenhum teste passou.<br>
+                            A logo não está sendo servida corretamente.<br><br>
+                            <strong>Possíveis causas:</strong><br>
+                            • Arquivo não foi enviado<br>
+                            • Permissões incorretas<br>
+                            • Caminho incorreto<br><br>
+                            <strong>Solução:</strong><br>
+                            Verifique se o arquivo existe em: <code>images/cdmlogo.png</code>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        async function testServer() {
+            const testPaths = [
+                './images/cdmlogo.png',
+                '/cdm-admin/images/cdmlogo.png',
+                'images/cdmlogo.png'
+            ];
+
+            document.getElementById('summary').innerHTML = 
+                '<div class="status warning">🔍 Testando servidor...</div>';
+
+            for (const path of testPaths) {
+                try {
+                    const response = await fetch(path, { method: 'HEAD' });
+                    if (response.ok) {
+                        document.getElementById('summary').innerHTML += 
+                            `<div class="status success">✅ Servidor responde OK para: ${path}</div>`;
+                    } else {
+                        document.getElementById('summary').innerHTML += 
+                            `<div class="status error">❌ Servidor retorna ${response.status} para: ${path}</div>`;
+                    }
+                } catch (error) {
+                    document.getElementById('summary').innerHTML += 
+                        `<div class="status error">❌ Erro de rede para: ${path}</div>`;
+                }
+            }
+        }
+
+        // Mostrar informações do ambiente
+        window.addEventListener('load', () => {
+            console.log('🖼️ Teste de Logo CDM Admin');
+            console.log('URL atual:', window.location.href);
+            console.log('Base URL:', window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/'));
+        });
+    </script>
+</body>
+</html>

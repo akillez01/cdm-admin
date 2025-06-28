@@ -171,7 +171,8 @@ const TransactionList: React.FC<TransactionListProps> = ({
         </div>
       </div>
       
-      <div className="overflow-x-auto">
+      {/* Tabela para md+ */}
+      <div className="overflow-x-auto hidden md:block">
         <table className="table w-full">
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
@@ -232,6 +233,60 @@ const TransactionList: React.FC<TransactionListProps> = ({
             )}
           </tbody>
         </table>
+      </div>
+      
+      {/* Cards para mobile */}
+      <div className="flex flex-col gap-4 md:hidden">
+        {filteredTransactions.length > 0 ? (
+          filteredTransactions.map((transaction) => (
+            <div key={transaction.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg shadow p-4 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {getTransactionTypeIcon(transaction.type)}
+                  <span className={`badge ${getTransactionTypeClass(transaction.type)}`}>
+                    {getTransactionTypeLabel(transaction.type)}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  {formatDate(transaction.date)}
+                </div>
+              </div>
+              
+              <div className={`text-lg font-semibold ${
+                transaction.type === 'expense' 
+                  ? 'text-danger-500' 
+                  : 'text-success-500'
+              }`}>
+                {transaction.type === 'expense' ? '- ' : '+ '}
+                {formatCurrency(transaction.amount)}
+              </div>
+              
+              <div className="flex flex-wrap gap-2 text-sm">
+                <span className="bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-200 px-2 py-1 rounded">
+                  {transaction.category}
+                </span>
+                <span className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-2 py-1 rounded capitalize">
+                  {transaction.paymentMethod}
+                </span>
+                {transaction.memberName && (
+                  <span className="bg-secondary-100 dark:bg-secondary-900 text-secondary-700 dark:text-secondary-200 px-2 py-1 rounded">
+                    {transaction.memberName}
+                  </span>
+                )}
+              </div>
+              
+              {transaction.description && (
+                <div className="text-sm text-gray-600 dark:text-gray-300">
+                  <strong>Descrição:</strong> {transaction.description}
+                </div>
+              )}
+            </div>
+          ))
+        ) : (
+          <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+            Nenhuma transação encontrada com os filtros atuais.
+          </div>
+        )}
       </div>
       
       <div className="p-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">

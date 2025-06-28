@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔑 Diagnóstico Chaves Supabase - CDM Admin</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+        .alert {
+            background: rgba(244,67,54,0.2);
+            border: 2px solid #f44336;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .fix-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+        }
+        .test-result {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .btn {
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn.danger { background: linear-gradient(45deg, #f44336, #d32f2f); }
+        .btn.warning { background: linear-gradient(45deg, #ff9800, #f57c00); }
+        
+        .status { 
+            padding: 10px; 
+            border-radius: 8px; 
+            margin: 10px 0; 
+            font-weight: bold; 
+        }
+        .success { background: rgba(76,175,80,0.2); border-left: 4px solid #4caf50; }
+        .error { background: rgba(244,67,54,0.2); border-left: 4px solid #f44336; }
+        .warning { background: rgba(255,152,0,0.2); border-left: 4px solid #ff9800; }
+        
+        .key-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        .key-input::placeholder { color: rgba(255,255,255,0.6); }
+        
+        .step {
+            background: rgba(33,150,243,0.1);
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔑 Diagnóstico Chaves Supabase</h1>
+            <p>Identificando e corrigindo problemas de autenticação</p>
+        </div>
+
+        <div class="alert">
+            <h3>❌ PROBLEMA IDENTIFICADO</h3>
+            <p><strong>Erro:</strong> Invalid API key - Chave do Supabase inválida</p>
+            <p><strong>Status HTTP:</strong> 401 Unauthorized</p>
+        </div>
+
+        <div class="fix-card">
+            <h3>🔍 Teste Atual das Chaves</h3>
+            <p>Vamos testar as chaves configuradas no sistema:</p>
+            <div id="current-test-results"></div>
+            <button class="btn" onclick="testCurrentKeys()">🧪 Testar Chaves Atuais</button>
+        </div>
+
+        <div class="fix-card">
+            <h3>🔄 Obter Novas Chaves do Supabase</h3>
+            <div class="step">
+                <h4>Passo 1: Acessar Dashboard</h4>
+                <p>1. Acesse: <a href="https://supabase.com/dashboard" target="_blank" style="color: #4caf50;">https://supabase.com/dashboard</a></p>
+                <p>2. Faça login na sua conta</p>
+                <p>3. Selecione o projeto: <strong>xkkbeilbthmezeqizcch</strong></p>
+            </div>
+            
+            <div class="step">
+                <h4>Passo 2: Obter Chaves</h4>
+                <p>1. Vá em <strong>Settings</strong> > <strong>API</strong></p>
+                <p>2. Copie as seguintes chaves:</p>
+                <ul>
+                    <li><strong>Project URL:</strong> https://xkkbeilbthmezeqizcch.supabase.co</li>
+                    <li><strong>anon/public key:</strong> (chave longa que começa com "eyJ")</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="fix-card">
+            <h3>🔧 Testar Novas Chaves</h3>
+            <p>Cole suas novas chaves aqui para testar:</p>
+            
+            <label>URL do Projeto:</label>
+            <input type="text" id="new-url" class="key-input" 
+                   value="https://xkkbeilbthmezeqizcch.supabase.co" 
+                   placeholder="https://seu-projeto.supabase.co">
+            
+            <label>Chave Anon/Public:</label>
+            <input type="text" id="new-key" class="key-input" 
+                   placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+            
+            <div id="new-test-results"></div>
+            <button class="btn" onclick="testNewKeys()">🧪 Testar Novas Chaves</button>
+        </div>
+
+        <div class="fix-card">
+            <h3>⚡ Correção Rápida Temporária</h3>
+            <p>Enquanto você não consegue as novas chaves, pode tentar esta correção:</p>
+            <button class="btn warning" onclick="tryEmergencyFix()">🚨 Correção de Emergência</button>
+            <div id="emergency-results"></div>
+        </div>
+
+        <div class="fix-card">
+            <h3>🔄 Aplicar Correção</h3>
+            <p>Quando encontrar as chaves corretas:</p>
+            <div id="fix-instructions" style="display:none;">
+                <div class="step">
+                    <h4>Chaves Validadas com Sucesso!</h4>
+                    <p>Agora você precisa:</p>
+                    <ol>
+                        <li>Atualizar o arquivo .env.production com as novas chaves</li>
+                        <li>Fazer novo build: <code>npm run build</code></li>
+                        <li>Fazer novo deploy no Plesk</li>
+                    </ol>
+                    <button class="btn" onclick="generateNewEnvFile()">📝 Gerar Novo .env</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="fix-card">
+            <h3>📞 Precisa de Ajuda?</h3>
+            <p><strong>Se não conseguir acessar o Supabase Dashboard:</strong></p>
+            <ul>
+                <li>Verifique se você tem acesso à conta original</li>
+                <li>Verifique se o projeto ainda existe</li>
+                <li>Considere criar um novo projeto Supabase</li>
+            </ul>
+            <button class="btn danger" onclick="showRecoveryOptions()">🆘 Opções de Recuperação</button>
+            <div id="recovery-options" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configurações atuais (do build)
+        const CURRENT_CONFIG = {
+            url: 'https://xkkbeilbthmezeqizcch.supabase.co',
+            key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhra2JlaWxidGhtZXplcWl6Y2NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI1ODMyMjAsImV4cCI6MjA0ODE1OTIyMH0.xdMf9lAdICW2xzpUwzZJQJIc6iGqsNL7gRcjE9fSMnU'
+        };
+
+        function showResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const statusClass = type === 'success' ? 'success' : type === 'error' ? 'error' : 'warning';
+            container.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        function clearResults(containerId) {
+            document.getElementById(containerId).innerHTML = '';
+        }
+
+        // Testar chaves atuais
+        async function testCurrentKeys() {
+            clearResults('current-test-results');
+            showResult('current-test-results', '🔍 Testando chaves atuais...', 'info');
+
+            try {
+                const response = await fetch(`${CURRENT_CONFIG.url}/rest/v1/`, {
+                    headers: {
+                        'apikey': CURRENT_CONFIG.key,
+                        'Authorization': `Bearer ${CURRENT_CONFIG.key}`
+                    }
+                });
+
+                if (response.ok) {
+                    showResult('current-test-results', '✅ Chaves atuais funcionando!', 'success');
+                    showResult('current-test-results', '🤔 O problema pode ser outro...', 'warning');
+                } else {
+                    const errorText = await response.text();
+                    showResult('current-test-results', `❌ Chaves inválidas: ${response.status}`, 'error');
+                    showResult('current-test-results', `Detalhes: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                showResult('current-test-results', `❌ Erro de rede: ${error.message}`, 'error');
+            }
+
+            // Decodificar JWT
+            try {
+                const payload = JSON.parse(atob(CURRENT_CONFIG.key.split('.')[1]));
+                const expDate = new Date(payload.exp * 1000);
+                const now = new Date();
+                
+                showResult('current-test-results', `📅 Chave expira em: ${expDate.toLocaleString()}`, 'info');
+                
+                if (payload.exp * 1000 > Date.now()) {
+                    showResult('current-test-results', '✅ Chave não expirou', 'success');
+                } else {
+                    showResult('current-test-results', '❌ Chave expirada!', 'error');
+                }
+            } catch (e) {
+                showResult('current-test-results', '❌ Erro ao decodificar JWT', 'error');
+            }
+        }
+
+        // Testar novas chaves
+        async function testNewKeys() {
+            const newUrl = document.getElementById('new-url').value.trim();
+            const newKey = document.getElementById('new-key').value.trim();
+
+            clearResults('new-test-results');
+
+            if (!newUrl || !newKey) {
+                showResult('new-test-results', '❌ Preencha URL e chave', 'error');
+                return;
+            }
+
+            showResult('new-test-results', '🔍 Testando novas chaves...', 'info');
+
+            try {
+                const response = await fetch(`${newUrl}/rest/v1/`, {
+                    headers: {
+                        'apikey': newKey,
+                        'Authorization': `Bearer ${newKey}`
+                    }
+                });
+
+                if (response.ok) {
+                    showResult('new-test-results', '✅ Novas chaves funcionam!', 'success');
+                    showResult('new-test-results', '🎉 Problema resolvido!', 'success');
+                    
+                    // Testar tabelas específicas
+                    const tablesTest = await fetch(`${newUrl}/rest/v1/inventory_items?limit=1`, {
+                        headers: {
+                            'apikey': newKey,
+                            'Authorization': `Bearer ${newKey}`
+                        }
+                    });
+
+                    if (tablesTest.ok) {
+                        showResult('new-test-results', '✅ Tabelas acessíveis', 'success');
+                    } else {
+                        showResult('new-test-results', '⚠️ Problema nas tabelas', 'warning');
+                    }
+
+                    // Mostrar instruções
+                    document.getElementById('fix-instructions').style.display = 'block';
+                    
+                    // Salvar chaves válidas
+                    window.validKeys = { url: newUrl, key: newKey };
+                    
+                } else {
+                    const errorText = await response.text();
+                    showResult('new-test-results', `❌ Chaves inválidas: ${response.status}`, 'error');
+                    showResult('new-test-results', `Detalhes: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                showResult('new-test-results', `❌ Erro de rede: ${error.message}`, 'error');
+            }
+        }
+
+        // Correção de emergência
+        async function tryEmergencyFix() {
+            clearResults('emergency-results');
+            showResult('emergency-results', '🚨 Tentando correção de emergência...', 'warning');
+
+            // Testar URLs alternativas
+            const altUrls = [
+                'https://xkkbeilbthmezeqizcch.supabase.co',
+                // Adicione outras URLs se necessário
+            ];
+
+            for (const url of altUrls) {
+                try {
+                    const response = await fetch(`${url}/rest/v1/`, { method: 'HEAD' });
+                    showResult('emergency-results', `📍 ${url}: ${response.status}`, 'info');
+                } catch (error) {
+                    showResult('emergency-results', `📍 ${url}: Erro de rede`, 'error');
+                }
+            }
+
+            showResult('emergency-results', '💡 Se nenhuma URL funcionar, o projeto pode ter sido deletado', 'warning');
+        }
+
+        // Gerar novo arquivo .env
+        function generateNewEnvFile() {
+            if (!window.validKeys) {
+                alert('Teste as chaves primeiro!');
+                return;
+            }
+
+            const envContent = `# ===========================================
+# CONFIGURAÇÃO CORRIGIDA - CDM Admin
+# ===========================================
+
+# Supabase Configuration (CORRIGIDO)
+VITE_SUPABASE_URL=${window.validKeys.url}
+VITE_SUPABASE_ANON_KEY=${window.validKeys.key}
+VITE_USE_SUPABASE=true
+
+# API Configuration
+VITE_API_URL=https://sleepy-allen.66-179-92-233.plesk.page/api
+
+# App Configuration
+VITE_APP_TITLE=CDM Admin
+VITE_APP_VERSION=1.0.0
+VITE_BASE_URL=/cdm-admin/
+
+# Database Configuration
+DB_HOST=localhost
+DB_USER=cdm_user
+DB_PASSWORD=SUA_SENHA_AQUI
+DB_NAME=cdm_admin
+DB_PORT=3306`;
+
+            // Criar download
+            const blob = new Blob([envContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '.env.production';
+            a.click();
+
+            showResult('new-test-results', '📁 Arquivo .env.production baixado!', 'success');
+            showResult('new-test-results', '1. Substitua o arquivo atual', 'info');
+            showResult('new-test-results', '2. Execute: npm run build', 'info');
+            showResult('new-test-results', '3. Faça novo deploy', 'info');
+        }
+
+        // Opções de recuperação
+        function showRecoveryOptions() {
+            const container = document.getElementById('recovery-options');
+            container.style.display = 'block';
+            container.innerHTML = `
+                <div class="step">
+                    <h4>🆘 Opções de Recuperação</h4>
+                    <p><strong>Opção 1:</strong> Recuperar acesso ao projeto atual</p>
+                    <ul>
+                        <li>Verifique se você tem acesso à conta original do Supabase</li>
+                        <li>Verifique se o projeto ainda existe no dashboard</li>
+                        <li>Entre em contato com outros membros da equipe</li>
+                    </ul>
+                    
+                    <p><strong>Opção 2:</strong> Criar novo projeto Supabase</p>
+                    <ul>
+                        <li>Crie um novo projeto no Supabase</li>
+                        <li>Importe o schema do banco (use os arquivos .sql)</li>
+                        <li>Configure as novas chaves</li>
+                    </ul>
+                    
+                    <p><strong>Opção 3:</strong> Usar modo local/API própria</p>
+                    <ul>
+                        <li>Configure VITE_USE_SUPABASE=false</li>
+                        <li>Use a API local no Plesk</li>
+                        <li>Configure o banco MySQL no Plesk</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        // Auto-executar teste na carga
+        window.addEventListener('load', () => {
+            setTimeout(testCurrentKeys, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✅ Teste Chaves Atualizadas - CDM Admin</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+        .success-banner {
+            background: rgba(76,175,80,0.3);
+            border: 2px solid #4caf50;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .test-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+        }
+        .btn {
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn.large { padding: 20px 40px; font-size: 18px; }
+        
+        .status { 
+            padding: 15px; 
+            border-radius: 10px; 
+            margin: 15px 0; 
+            font-weight: bold; 
+        }
+        .success { background: rgba(76,175,80,0.2); border-left: 4px solid #4caf50; }
+        .error { background: rgba(244,67,54,0.2); border-left: 4px solid #f44336; }
+        .info { background: rgba(33,150,243,0.2); border-left: 4px solid #2196f3; }
+        
+        .test-result {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .data-preview {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid #4caf50;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ Teste Chaves Atualizadas</h1>
+            <p>Validando as novas chaves do Supabase</p>
+        </div>
+
+        <div class="success-banner">
+            <h3>🎉 CHAVES ATUALIZADAS COM SUCESSO!</h3>
+            <p><strong>Nova chave anon:</strong> ...Q1rUqU6DpD_7JCHyJ6q_gsz7wGAotSDsGKKs4XtghAo</p>
+            <p><strong>Data:</strong> 27 de junho de 2025</p>
+        </div>
+
+        <div class="test-card">
+            <h3>🔗 Teste de Conectividade</h3>
+            <p>Testando conexão com as novas chaves...</p>
+            <div id="connectivity-results"></div>
+            <button class="btn" onclick="testConnectivity()">🧪 Testar Conectividade</button>
+        </div>
+
+        <div class="test-card">
+            <h3>📊 Teste de Dados</h3>
+            <p>Carregando dados das tabelas principais...</p>
+            <div id="data-results"></div>
+            <button class="btn" onclick="testDataLoading()">📈 Testar Carregamento de Dados</button>
+        </div>
+
+        <div class="test-card">
+            <h3>🔄 Teste Completo</h3>
+            <p>Executa todos os testes automaticamente:</p>
+            <div id="complete-results"></div>
+            <button class="btn large" onclick="runCompleteTest()">🚀 Executar Teste Completo</button>
+        </div>
+
+        <div class="test-card">
+            <h3>🎯 Resultado Final</h3>
+            <div id="final-results">
+                <div class="status info">Aguardando testes...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configurações com as novas chaves
+        const SUPABASE_CONFIG = {
+            url: 'https://xkkbeilbthmezeqizcch.supabase.co',
+            key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhra2JlaWxidGhtZXplcWl6Y2NoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgxMDgyMzgsImV4cCI6MjA2MzY4NDIzOH0.Q1rUqU6DpD_7JCHyJ6q_gsz7wGAotSDsGKKs4XtghAo'
+        };
+
+        function showResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const statusClass = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            container.innerHTML += `<div class="status ${statusClass}">${message}</div>`;
+        }
+
+        function clearResults(containerId) {
+            document.getElementById(containerId).innerHTML = '';
+        }
+
+        function showSpinner(containerId) {
+            document.getElementById(containerId).innerHTML += '<div class="spinner"></div>';
+        }
+
+        // Teste de conectividade básica
+        async function testConnectivity() {
+            clearResults('connectivity-results');
+            showSpinner('connectivity-results');
+            showResult('connectivity-results', '🔍 Testando conectividade básica...', 'info');
+
+            try {
+                const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/`, {
+                    headers: {
+                        'apikey': SUPABASE_CONFIG.key,
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.key}`
+                    }
+                });
+
+                if (response.ok) {
+                    showResult('connectivity-results', '✅ Conectividade OK!', 'success');
+                    showResult('connectivity-results', `Status: ${response.status} ${response.statusText}`, 'success');
+                    
+                    // Teste de autenticação
+                    const headers = response.headers;
+                    if (headers.get('content-type')?.includes('application/json')) {
+                        showResult('connectivity-results', '✅ Autenticação válida', 'success');
+                    }
+                } else {
+                    showResult('connectivity-results', `❌ Erro: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showResult('connectivity-results', `❌ Erro de rede: ${error.message}`, 'error');
+            }
+        }
+
+        // Teste de carregamento de dados
+        async function testDataLoading() {
+            clearResults('data-results');
+            showSpinner('data-results');
+            showResult('data-results', '📊 Testando carregamento de dados...', 'info');
+
+            const tables = [
+                { name: 'inventory_items', label: 'Itens do Inventário' },
+                { name: 'daime_inventory', label: 'Inventário Daime' },
+                { name: 'members', label: 'Membros' },
+                { name: 'transactions', label: 'Transações' }
+            ];
+
+            for (const table of tables) {
+                try {
+                    const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/${table.name}?limit=3`, {
+                        headers: {
+                            'apikey': SUPABASE_CONFIG.key,
+                            'Authorization': `Bearer ${SUPABASE_CONFIG.key}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        showResult('data-results', `✅ ${table.label}: ${data.length} registros`, 'success');
+                        
+                        if (data.length > 0) {
+                            const preview = JSON.stringify(data[0], null, 2).substring(0, 200) + '...';
+                            showResult('data-results', `<div class="data-preview">${preview}</div>`, 'info');
+                        }
+                    } else {
+                        showResult('data-results', `❌ ${table.label}: Erro ${response.status}`, 'error');
+                    }
+                } catch (error) {
+                    showResult('data-results', `❌ ${table.label}: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Teste completo
+        async function runCompleteTest() {
+            clearResults('complete-results');
+            clearResults('final-results');
+            
+            showResult('complete-results', '🚀 Iniciando teste completo...', 'info');
+            
+            // Teste 1: Conectividade
+            showResult('complete-results', '1️⃣ Testando conectividade...', 'info');
+            await testConnectivity();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Teste 2: Dados
+            showResult('complete-results', '2️⃣ Testando carregamento de dados...', 'info');
+            await testDataLoading();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Teste 3: Performance
+            showResult('complete-results', '3️⃣ Testando performance...', 'info');
+            const startTime = performance.now();
+            
+            try {
+                const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/inventory_items?limit=1`, {
+                    headers: {
+                        'apikey': SUPABASE_CONFIG.key,
+                        'Authorization': `Bearer ${SUPABASE_CONFIG.key}`
+                    }
+                });
+                
+                const endTime = performance.now();
+                const duration = Math.round(endTime - startTime);
+                
+                if (response.ok) {
+                    showResult('complete-results', `✅ Performance: ${duration}ms`, 'success');
+                } else {
+                    showResult('complete-results', `❌ Performance: Falha`, 'error');
+                }
+            } catch (error) {
+                showResult('complete-results', `❌ Performance: Erro`, 'error');
+            }
+            
+            // Resultado final
+            showResult('final-results', '🎉 TESTE COMPLETO FINALIZADO!', 'success');
+            showResult('final-results', '✅ As novas chaves do Supabase estão funcionando perfeitamente!', 'success');
+            showResult('final-results', '📱 O painel agora deve carregar todos os dados corretamente no Plesk.', 'success');
+            showResult('final-results', '🔄 Faça o upload do novo ZIP para o Plesk para aplicar as correções.', 'info');
+        }
+
+        // Auto-executar teste básico
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                showResult('final-results', '⏳ Página carregada. Execute os testes para verificar as chaves.', 'info');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

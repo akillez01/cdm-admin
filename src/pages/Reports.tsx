@@ -219,35 +219,35 @@ const Reports: React.FC = () => {
   ];
 
   return (
-    <div className="animate-fade-in p-6">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+    <div className="animate-fade-in p-4 sm:p-6">
+      <header className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1 sm:mb-2">
           Relatórios Analíticos
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
           Visualize e exporte dados importantes da sua igreja
         </p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3 mb-6 sm:mb-8">
         {reportCards.map((card) => (
           <div 
             key={card.id}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 cursor-pointer"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-shadow p-4 sm:p-6 cursor-pointer"
             onClick={() => setSelectedReport(card.id)}
           >
-            <div className="flex items-center mb-4">
-              <div className={`p-3 rounded-lg ${card.bgColor} ${card.textColor} mr-4`}>
+            <div className="flex items-center mb-3 sm:mb-4">
+              <div className={`p-2 sm:p-3 rounded-lg ${card.bgColor} ${card.textColor} mr-3 sm:mr-4`}>
                 {card.icon}
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                 {card.title}
               </h3>
             </div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
+            <p className="text-gray-500 dark:text-gray-400 text-xs sm:text-sm mb-3 sm:mb-4">
               {card.description}
             </p>
-            <div className="h-40">
+            <div className="h-32 sm:h-40">
               <ChartComponent
                 chartData={chartData[card.id]}
                 chartType={card.id === 'attendance' ? 'doughnut' : 'line'}

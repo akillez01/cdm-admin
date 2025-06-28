@@ -1,10 +1,26 @@
 # CDM Admin - SPA Routing Configuration
 RewriteEngine On
 
-# Handle Angular and Vue.js Router
+# Force MIME types for static assets (fix logo loading issues)
+<IfModule mod_mime.c>
+    AddType image/png .png
+    AddType image/jpeg .jpg .jpeg
+    AddType image/gif .gif
+    AddType image/svg+xml .svg
+    AddType text/css .css
+    AddType application/javascript .js
+    AddType application/json .json
+</IfModule>
+
+# Handle static assets first (images, CSS, JS) - don't redirect to index.html
+RewriteCond %{REQUEST_FILENAME} \.(png|jpg|jpeg|gif|svg|css|js|json|ico|woff|woff2|ttf|eot)$ [NC]
+RewriteRule ^(.*)$ - [L]
+
+# Handle SPA routing - redirect to index.html only for non-static files
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /index.html [L]
+RewriteCond %{REQUEST_URI} !\.(png|jpg|jpeg|gif|svg|css|js|json|ico|woff|woff2|ttf|eot)$ [NC]
+RewriteRule . ./index.html [L]
 
 # Security Headers
 <IfModule mod_headers.c>
@@ -13,6 +29,11 @@ RewriteRule . /index.html [L]
     Header always set X-XSS-Protection "1; mode=block"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    
+    # Ensure images are served with correct headers
+    <FilesMatch "\.(png|jpg|jpeg|gif|svg)$">
+        Header set Cache-Control "public, max-age=31536000"
+    </FilesMatch>
 </IfModule>
 
 # Cache Control
@@ -25,6 +46,7 @@ RewriteRule . /index.html [L]
     ExpiresByType image/jpeg "access plus 1 year"
     ExpiresByType image/gif "access plus 1 year"
     ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType application/json "access plus 1 hour"
 </IfModule>
 
 # Compression
@@ -38,4 +60,11 @@ RewriteRule . /index.html [L]
     AddOutputFilterByType DEFLATE application/rss+xml
     AddOutputFilterByType DEFLATE application/javascript
     AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
 </IfModule>
+
+# Directory browsing protection
+Options -Indexes
+
+# Error pages
+ErrorDocument 404 /index.html

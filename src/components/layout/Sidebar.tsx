@@ -11,7 +11,7 @@ import {
   Users,
   X
 } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface SidebarProps {
@@ -30,6 +30,29 @@ const Sidebar: React.FC<SidebarProps> = ({
   onClose 
 }) => {
   const location = useLocation();
+  const [logoError, setLogoError] = useState(false);
+  const [logoPath, setLogoPath] = useState("/cdm-admin/images/cdmlogo.png");
+  
+  // Caminhos alternativos para tentar
+  const logoPaths = [
+    "/cdm-admin/images/cdmlogo.png",
+    "./images/cdmlogo.png", 
+    "images/cdmlogo.png",
+    "/images/cdmlogo.png"
+  ];
+  
+  const tryNextLogoPath = () => {
+    const currentIndex = logoPaths.indexOf(logoPath);
+    const nextIndex = currentIndex + 1;
+    
+    if (nextIndex < logoPaths.length) {
+      setLogoPath(logoPaths[nextIndex]);
+      console.log(`Tentando logo path: ${logoPaths[nextIndex]}`);
+    } else {
+      console.warn('Todos os caminhos da logo falharam, usando fallback');
+      setLogoError(true);
+    }
+  };
   
   const navItems = [
     { name: 'Dashboard', path: '/', icon: <Home size={22} /> },
@@ -80,11 +103,21 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-5 border-b border-primary-500">
             <div className="flex items-center">
-              <img 
-                src="/cdm-admin/images/cdmlogo.png" 
-                alt="CDM Logo" 
-                className="w-8 h-8 object-cover rounded-full bg-white" 
-              />
+              {!logoError ? (
+                <img 
+                  src={logoPath}
+                  alt="CDM Logo" 
+                  className="w-8 h-8 object-cover rounded-full bg-white" 
+                  onError={() => {
+                    console.warn(`Falha ao carregar logo CDM em: ${logoPath}`);
+                    tryNextLogoPath();
+                  }}
+                />
+              ) : (
+                <div className="w-8 h-8 bg-primary-300 rounded-full flex items-center justify-center text-primary-800 font-bold text-sm">
+                  CDM
+                </div>
+              )}
               {!isMinimized && (
                 <h1 className="ml-3 text-xl font-bold truncate">Céu das Matas</h1>
               )}

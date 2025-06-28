@@ -1,5 +1,5 @@
+import { AlertTriangle, Plus, Search } from 'lucide-react';
 import React, { useState } from 'react';
-import { Search, Plus, AlertTriangle } from 'lucide-react';
 import { InventoryItem } from '../../types';
 
 interface InventoryListProps {
@@ -126,77 +126,149 @@ const InventoryList: React.FC<InventoryListProps> = ({
       </div>
       
       <div className="overflow-x-auto">
-        <table className="table w-full">
-          <thead className="bg-gray-50 dark:bg-gray-700">
-            <tr>
-              <th scope="col">Nome</th>
-              <th scope="col">Categoria</th>
-              <th scope="col">Quantidade</th>
-              <th scope="col">Localização</th>
-              <th scope="col">Valor</th>
-              <th scope="col">Status</th>
-              <th scope="col">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredItems.length > 0 ? (
-              filteredItems.map((item) => (
-                <tr key={item.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="text-sm font-medium text-gray-800 dark:text-white">
-                        {item.name}
+        {/* Desktop Table View */}
+        <div className="hidden md:block">
+          <table className="table w-full">
+            <thead className="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Categoria</th>
+                <th scope="col">Quantidade</th>
+                <th scope="col">Localização</th>
+                <th scope="col">Valor</th>
+                <th scope="col">Status</th>
+                <th scope="col">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredItems.length > 0 ? (
+                filteredItems.map((item) => (
+                  <tr key={item.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="text-sm font-medium text-gray-800 dark:text-white">
+                          {item.name}
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {item.category}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center">
-                      {item.status === 'low' && (
-                        <AlertTriangle size={16} className="text-warning-500 mr-2" />
-                      )}
-                      {item.quantity}
-                      {item.minQuantity && (
-                        <span className="text-xs text-gray-400 ml-1">
-                          (min: {item.minQuantity})
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {item.location}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {formatCurrency(item.value)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`badge ${getStatusBadgeClass(item.status)}`}>
-                      {getStatusLabel(item.status)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button
-                      onClick={() => onEditItem(item)}
-                      className="text-primary-500 hover:text-primary-600 mr-3"
-                    >
-                      Editar
-                    </button>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {item.category}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center">
+                        {item.status === 'low' && (
+                          <AlertTriangle size={16} className="text-warning-500 mr-2" />
+                        )}
+                        {item.quantity}
+                        {item.minQuantity && (
+                          <span className="text-xs text-gray-400 ml-1">
+                            (min: {item.minQuantity})
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {item.location}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {formatCurrency(item.value)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`badge ${getStatusBadgeClass(item.status)}`}>
+                        {getStatusLabel(item.status)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button
+                        onClick={() => onEditItem(item)}
+                        className="text-primary-500 hover:text-primary-600 mr-3"
+                      >
+                        Editar
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="px-6 py-4 text-center">
+                    <p className="text-gray-500 dark:text-gray-400">
+                      Nenhum item encontrado com os filtros atuais.
+                    </p>
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={7} className="px-6 py-4 text-center">
-                  <p className="text-gray-500 dark:text-gray-400">
-                    Nenhum item encontrado com os filtros atuais.
-                  </p>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden">
+          {filteredItems.length > 0 ? (
+            <div className="space-y-4 p-4">
+              {filteredItems.map((item) => (
+                <div key={item.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="font-medium text-gray-900 dark:text-white text-lg">
+                      {item.name}
+                    </h3>
+                    <span className={`badge ${getStatusBadgeClass(item.status)} text-xs`}>
+                      {getStatusLabel(item.status)}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 dark:text-gray-400">Categoria:</span>
+                      <span className="text-gray-900 dark:text-white">{item.category}</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-500 dark:text-gray-400">Quantidade:</span>
+                      <div className="flex items-center">
+                        {item.status === 'low' && (
+                          <AlertTriangle size={14} className="text-warning-500 mr-1" />
+                        )}
+                        <span className="text-gray-900 dark:text-white">{item.quantity}</span>
+                        {item.minQuantity && (
+                          <span className="text-xs text-gray-400 ml-1">
+                            (min: {item.minQuantity})
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 dark:text-gray-400">Local:</span>
+                      <span className="text-gray-900 dark:text-white">{item.location}</span>
+                    </div>
+                    
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 dark:text-gray-400">Valor:</span>
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        {formatCurrency(item.value)}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600">
+                    <button
+                      onClick={() => onEditItem(item)}
+                      className="w-full btn btn-primary text-sm py-2"
+                    >
+                      Editar Item
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-8 text-center">
+              <p className="text-gray-500 dark:text-gray-400">
+                Nenhum item encontrado com os filtros atuais.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
       
       <div className="p-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">

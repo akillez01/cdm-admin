@@ -59,21 +59,21 @@ const MemberList: React.FC<MemberListProps> = ({
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card">
-      <div className="p-6 border-b border-gray-100 dark:border-gray-700">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 md:mb-0">
+      <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white">
             Lista de Membros
           </h2>
           <button
             onClick={onAddMember}
-            className="btn btn-primary flex items-center"
+            className="btn btn-primary flex items-center justify-center w-full sm:w-auto"
           >
             <Plus size={16} className="mr-1" />
             Adicionar Membro
           </button>
         </div>
         
-        <div className="mt-4 flex flex-col md:flex-row gap-4">
+        <div className="mt-4 flex flex-col gap-3 sm:gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
@@ -85,36 +85,39 @@ const MemberList: React.FC<MemberListProps> = ({
             />
           </div>
           
-          <div className="w-full md:w-48">
-            <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="form-input"
-            >
-              <option value="all">Todos os Tipos</option>
-              <option value="visitor">Visitante</option>
-              <option value="member">Frequentador</option>
-              <option value="ordained">Fardado</option>
-            </select>
-          </div>
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <div className="w-full sm:w-48">
+              <select
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="form-input w-full"
+              >
+                <option value="all">Todos os Tipos</option>
+                <option value="visitor">Visitante</option>
+                <option value="member">Frequentador</option>
+                <option value="ordained">Fardado</option>
+              </select>
+            </div>
 
-          <div className="w-full md:w-48">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="form-input"
-            >
-              <option value="all">Todos os Status</option>
-              <option value="active">Ativos</option>
-              <option value="inactive">Inativos</option>
-              <option value="visitor">Visitantes</option>
-            </select>
+            <div className="w-full sm:w-48">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="form-input w-full"
+              >
+                <option value="all">Todos os Status</option>
+                <option value="active">Ativos</option>
+                <option value="inactive">Inativos</option>
+                <option value="visitor">Visitantes</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
       
       <div className="overflow-x-auto">
-        <table className="table w-full">
+        {/* Tabela para md+ */}
+        <table className="table w-full hidden md:table">
           <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
               <th scope="col">Nome</th>
@@ -207,26 +210,96 @@ const MemberList: React.FC<MemberListProps> = ({
             )}
           </tbody>
         </table>
+        {/* Cards para mobile */}
+        <div className="flex flex-col gap-4 md:hidden">
+          {filteredMembers.length > 0 ? (
+            filteredMembers.map((member) => (
+              <div key={member.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg shadow p-4 flex flex-col gap-2">
+                <div className="flex items-center gap-3">
+                  {member.photo ? (
+                    <img
+                      className="h-12 w-12 rounded-full object-cover"
+                      src={member.photo}
+                      alt={`${member.firstName} ${member.lastName}`}
+                    />
+                  ) : (
+                    <div className="h-12 w-12 rounded-full bg-primary-100 dark:bg-primary-800 flex items-center justify-center">
+                      <span className="text-primary-600 dark:text-primary-200 font-medium text-lg">
+                        {(member.firstName?.[0] || '')}{(member.lastName?.[0] || '')}
+                      </span>
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-base font-semibold text-gray-800 dark:text-white">
+                      {member.firstName} {member.lastName}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{member.email}</div>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 text-sm mt-2">
+                  <span className="bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-200 px-2 py-0.5 rounded">
+                    {getMemberType(member)}
+                  </span>
+                  <span className={`px-2 py-0.5 rounded ${member.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>{member.status === 'active' ? 'Ativo' : 'Inativo'}</span>
+                  {member.phone && (
+                    <span className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded">
+                      {member.phone}
+                    </span>
+                  )}
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => onViewMember(member)}
+                    className="text-primary-500 hover:text-primary-600 text-sm"
+                  >
+                    Ver
+                  </button>
+                  <button
+                    onClick={() => onEditMember(member)}
+                    className="text-secondary-500 hover:text-secondary-600 text-sm"
+                  >
+                    Editar
+                  </button>
+                  <label className="inline-flex items-center cursor-pointer ml-auto">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={member.status === 'active'}
+                      onChange={() => handleStatusToggle(member)}
+                    />
+                    <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:bg-primary-600 relative">
+                      <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${member.status === 'active' ? 'translate-x-4' : ''}`}></div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+              Nenhum membro encontrado com os filtros atuais.
+            </div>
+          )}
+        </div>
       </div>
       
-      <div className="p-4 border-t border-gray-100 dark:border-gray-700 flex justify-between items-center">
-        <div className="text-sm text-gray-500 dark:text-gray-400">
+      <div className="p-4 border-t border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-3">
+        <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 text-center sm:text-left">
           Mostrando <span className="font-medium">{filteredMembers.length}</span> de{' '}
           <span className="font-medium">{members.length}</span> membros
         </div>
         
-        <div className="flex space-x-1">
+        <div className="flex flex-wrap justify-center gap-1">
           <button
             disabled
-            className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md disabled:opacity-50"
+            className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md disabled:opacity-50"
           >
             Anterior
           </button>
-          <button className="px-3 py-1 bg-primary-500 text-white rounded-md">1</button>
-          <button className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md">
+          <button className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-primary-500 text-white rounded-md">1</button>
+          <button className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md">
             2
           </button>
-          <button className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md">
+          <button className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-md">
             Próximo
           </button>
         </div>
