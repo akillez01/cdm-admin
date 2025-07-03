@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Member } from '../../types';
+import ImageUpload from '../ui/ImageUpload';
 
 interface MemberFormProps {
   member?: Member;
@@ -25,6 +26,7 @@ const MemberForm: React.FC<MemberFormProps> = ({
     groups: member?.groups || [],
     skills: member?.skills || [],
     notes: member?.notes || '',
+    photo: member?.photo || '', // Adicionar campo para foto
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -35,6 +37,10 @@ const MemberForm: React.FC<MemberFormProps> = ({
   const handleArrayChange = (e: React.ChangeEvent<HTMLInputElement>, field: 'ministries' | 'groups' | 'skills') => {
     const values = e.target.value.split(',').map(v => v.trim()).filter(Boolean);
     setFormData(prev => ({ ...prev, [field]: values }));
+  };
+
+  const handleImageUpload = (imageUrl: string) => {
+    setFormData(prev => ({ ...prev, photo: imageUrl }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -184,6 +190,17 @@ const MemberForm: React.FC<MemberFormProps> = ({
             value={formData.skills?.join(', ')}
             onChange={(e) => handleArrayChange(e, 'skills')}
             className="form-input"
+          />
+        </div>
+        
+        <div className="md:col-span-2">
+          <label className="form-label">Foto do Membro</label>
+          <ImageUpload
+            onImageUrlChange={handleImageUpload}
+            currentImageUrl={formData.photo}
+            bucketName="members"
+            folder="photos"
+            placeholder="Adicionar foto do membro"
           />
         </div>
         

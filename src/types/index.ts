@@ -53,6 +53,7 @@ export interface InventoryItem {
   minQuantity?: number;
   status: 'available' | 'low' | 'depleted';
   notes?: string;
+  photo?: string; // URL da imagem do item
 }
 
 // Santo Daime Inventory types
@@ -74,6 +75,7 @@ export interface DaimeInventoryItem {
   ph?: number; // pH do sacramento
   cor: 'Amarelo' | 'Marrom Claro' | 'Marrom' | 'Marrom Escuro' | 'Roxo'; // Cor do sacramento
   consistencia: 'Líquida' | 'Densa' | 'Muito Densa'; // Consistência
+  photo?: string; // URL da imagem do sacramento
   created_at?: string;
   updated_at?: string;
 }
@@ -96,6 +98,7 @@ export interface DaimeInventoryInsert {
   ph?: number;
   cor?: 'Amarelo' | 'Marrom Claro' | 'Marrom' | 'Marrom Escuro' | 'Roxo';
   consistencia?: 'Líquida' | 'Densa' | 'Muito Densa';
+  photo?: string;
 }
 
 // Tipo para atualização (todos os campos opcionais exceto id)
@@ -116,6 +119,7 @@ export interface DaimeInventoryUpdate {
   ph?: number;
   cor?: 'Amarelo' | 'Marrom Claro' | 'Marrom' | 'Marrom Escuro' | 'Roxo';
   consistencia?: 'Líquida' | 'Densa' | 'Muito Densa';
+  photo?: string;
 }
 
 // Event types
@@ -158,5 +162,29 @@ export interface ChartData {
     data: number[];
     backgroundColor?: string | string[];
     borderColor?: string | string[];
+    borderWidth?: number;
   }[];
+}
+
+// Notification types
+export interface Notification {
+  id: string;
+  type: 'info' | 'success' | 'warning' | 'error' | 'update';
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  actionUrl?: string;
+  actionLabel?: string;
+  priority: 'low' | 'medium' | 'high';
+  category: 'system' | 'member' | 'financial' | 'inventory' | 'general';
+}
+
+export interface NotificationSettings {
+  emailNotifications: boolean;
+  pushNotifications: boolean;
+  systemUpdates: boolean;
+  memberUpdates: boolean;
+  financialAlerts: boolean;
+  inventoryAlerts: boolean;
 }

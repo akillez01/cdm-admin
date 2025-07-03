@@ -1,18 +1,20 @@
 import {
-  BarChart2,
-  Calendar,
-  ChevronLeft,
-  DollarSign,
-  Home,
-  LogOut,
-  Menu,
-  Package,
-  Settings,
-  Users,
-  X
+    Activity,
+    BarChart2,
+    Calendar,
+    ChevronLeft,
+    DollarSign,
+    Home,
+    LogOut,
+    Menu,
+    Package,
+    Settings,
+    Users,
+    X
 } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -30,6 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onClose 
 }) => {
   const location = useLocation();
+  const { logout } = useAuth();
   const [logoError, setLogoError] = useState(false);
   const [logoPath, setLogoPath] = useState("/cdm-admin/images/cdmlogo.png");
   
@@ -61,6 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { name: 'Estoque', path: '/inventory', icon: <Package size={22} /> },
     { name: 'Eventos', path: '/events', icon: <Calendar size={22} /> },
     { name: 'Relatórios', path: '/reports', icon: <BarChart2 size={22} /> },
+    { name: 'Tempo Real', path: '/realtime', icon: <Activity size={22} /> },
     { name: 'Configurações', path: '/settings', icon: <Settings size={22} /> },
   ];
 
@@ -174,6 +178,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Footer */}
           <div className="border-t border-primary-500 p-2">
             <button
+              onClick={logout}
               className={`flex items-center w-full rounded-lg p-3 text-gray-100 hover:bg-primary-500 ${
                 isMinimized ? 'justify-center' : ''
               }`}

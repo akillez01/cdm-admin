@@ -1,6 +1,7 @@
 import { AlertTriangle, Plus, Search } from 'lucide-react';
 import React, { useState } from 'react';
 import { InventoryItem } from '../../types';
+import ImageThumbnail from '../ui/ImageThumbnail';
 
 interface InventoryListProps {
   items: InventoryItem[];
@@ -131,6 +132,7 @@ const InventoryList: React.FC<InventoryListProps> = ({
           <table className="table w-full">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
+                <th scope="col">Imagem</th>
                 <th scope="col">Nome</th>
                 <th scope="col">Categoria</th>
                 <th scope="col">Quantidade</th>
@@ -144,6 +146,13 @@ const InventoryList: React.FC<InventoryListProps> = ({
               {filteredItems.length > 0 ? (
                 filteredItems.map((item) => (
                   <tr key={item.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <ImageThumbnail 
+                        src={item.photo} 
+                        alt={item.name}
+                        size="md"
+                      />
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="text-sm font-medium text-gray-800 dark:text-white">
@@ -190,7 +199,7 @@ const InventoryList: React.FC<InventoryListProps> = ({
                 ))
               ) : (
                 <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center">
+                  <td colSpan={8} className="px-6 py-4 text-center">
                     <p className="text-gray-500 dark:text-gray-400">
                       Nenhum item encontrado com os filtros atuais.
                     </p>
@@ -208,9 +217,16 @@ const InventoryList: React.FC<InventoryListProps> = ({
               {filteredItems.map((item) => (
                 <div key={item.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow-sm">
                   <div className="flex justify-between items-start mb-3">
-                    <h3 className="font-medium text-gray-900 dark:text-white text-lg">
-                      {item.name}
-                    </h3>
+                    <div className="flex items-center space-x-3">
+                      <ImageThumbnail 
+                        src={item.photo} 
+                        alt={item.name}
+                        size="md"
+                      />
+                      <h3 className="font-medium text-gray-900 dark:text-white text-lg">
+                        {item.name}
+                      </h3>
+                    </div>
                     <span className={`badge ${getStatusBadgeClass(item.status)} text-xs`}>
                       {getStatusLabel(item.status)}
                     </span>

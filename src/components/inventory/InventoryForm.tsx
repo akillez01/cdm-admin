@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { InventoryItem } from '../../types';
+import ImageUpload from '../ui/ImageUpload';
 
 interface InventoryFormProps {
   item?: InventoryItem;
@@ -23,12 +24,17 @@ const InventoryForm: React.FC<InventoryFormProps> = ({
     minQuantity: item?.minQuantity || 0,
     status: item?.status || 'available',
     notes: item?.notes || '',
+    photo: item?.photo || '', // Adicionando campo photo
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     const processedValue = type === 'number' ? Number(value) : value;
     setFormData(prev => ({ ...prev, [name]: processedValue }));
+  };
+
+  const handleImageUpload = (imageUrl: string) => {
+    setFormData(prev => ({ ...prev, photo: imageUrl }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -159,6 +165,17 @@ const InventoryForm: React.FC<InventoryFormProps> = ({
             <option value="low">Baixo</option>
             <option value="depleted">Esgotado</option>
           </select>
+        </div>
+        
+        <div className="md:col-span-2">
+          <label className="form-label">Imagem do Item</label>
+          <ImageUpload
+            currentImageUrl={formData.photo}
+            onImageUrlChange={handleImageUpload}
+            bucketName="inventory"
+            folder="itens"
+            placeholder="Selecione uma imagem do item..."
+          />
         </div>
         
         <div className="md:col-span-2">

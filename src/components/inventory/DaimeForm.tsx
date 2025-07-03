@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { DaimeInventoryItem } from '../../types';
+import ImageUpload from '../ui/ImageUpload';
 
 interface DaimeFormProps {
   item?: DaimeInventoryItem;
@@ -25,6 +26,7 @@ const DaimeForm: React.FC<DaimeFormProps> = ({ item, onSubmit, onCancel }) => {
     ph: item?.ph || undefined,
     cor: item?.cor || 'Amarelo',
     consistencia: item?.consistencia || 'Líquida',
+    photo: item?.photo || '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,6 +39,10 @@ const DaimeForm: React.FC<DaimeFormProps> = ({ item, onSubmit, onCancel }) => {
         ? (value === '' ? undefined : Number(value))
         : value
     }));
+  };
+
+  const handleImageUpload = (imageUrl: string) => {
+    setFormData(prev => ({ ...prev, photo: imageUrl }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -339,6 +345,20 @@ const DaimeForm: React.FC<DaimeFormProps> = ({ item, onSubmit, onCancel }) => {
           rows={4}
           className="w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Informações adicionais sobre o sacramento..."
+        />
+      </div>
+
+      {/* Upload de Imagem */}
+      <div className="md:col-span-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Foto do Sacramento
+        </label>
+        <ImageUpload
+          onImageUrlChange={handleImageUpload}
+          currentImageUrl={formData.photo}
+          bucketName="sacramentos"
+          folder="fotos"
+          placeholder="Adicionar foto do sacramento para registro"
         />
       </div>
 

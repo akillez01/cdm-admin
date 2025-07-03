@@ -67,7 +67,8 @@ export function useSupabase() {
       purchaseDate: item.purchase_date,
       minQuantity: item.min_quantity,
       status: item.status,
-      notes: item.notes
+      notes: item.notes,
+      photo: item.photo // Adicionando campo photo ao inventário geral
     }));
   }, []);
 
@@ -81,7 +82,22 @@ export function useSupabase() {
       .single();
 
     if (error) throw error;
-    return data;
+    
+    // Mapear resposta do banco para TypeScript
+    return {
+      id: data.id,
+      name: data.name,
+      category: data.category,
+      quantity: data.quantity,
+      location: data.location,
+      value: data.value,
+      supplier: data.supplier,
+      purchaseDate: data.purchase_date,
+      minQuantity: data.min_quantity,
+      status: data.status,
+      notes: data.notes,
+      photo: data.photo // Mapeando campo photo
+    };
   }, []);
 
   const updateInventoryItem = useCallback(async (
@@ -96,7 +112,22 @@ export function useSupabase() {
       .single();
 
     if (error) throw error;
-    return data;
+    
+    // Mapear resposta do banco para TypeScript
+    return {
+      id: data.id,
+      name: data.name,
+      category: data.category,
+      quantity: data.quantity,
+      location: data.location,
+      value: data.value,
+      supplier: data.supplier,
+      purchaseDate: data.purchase_date,
+      minQuantity: data.min_quantity,
+      status: data.status,
+      notes: data.notes,
+      photo: data.photo // Mapeando campo photo
+    };
   }, []);
 
   const deleteInventoryItem = useCallback(async (id: string) => {
@@ -171,6 +202,7 @@ export function useSupabase() {
       ph: item.ph ? parseFloat(item.ph) : undefined,
       cor: item.cor,
       consistencia: item.consistencia,
+      photo: item.photo, // Adicionando mapeamento da foto
       created_at: item.created_at,
       updated_at: item.updated_at
     }));
@@ -194,7 +226,8 @@ export function useSupabase() {
       temperatura: item.temperatura,
       ph: item.ph,
       cor: item.cor || 'Amarelo',
-      consistencia: item.consistencia || 'Líquida'
+      consistencia: item.consistencia || 'Líquida',
+      photo: item.photo // Adicionando campo photo
     };
 
     const { data, error } = await supabase
@@ -251,6 +284,7 @@ export function useSupabase() {
     if (item.ph !== undefined) dbItem.ph = item.ph;
     if (item.cor !== undefined) dbItem.cor = item.cor;
     if (item.consistencia !== undefined) dbItem.consistencia = item.consistencia;
+    if (item.photo !== undefined) dbItem.photo = item.photo; // Adicionando campo photo
 
     const { data, error } = await supabase
       .from('daime_inventory')
@@ -280,6 +314,7 @@ export function useSupabase() {
       ph: data.ph ? parseFloat(data.ph) : undefined,
       cor: data.cor,
       consistencia: data.consistencia,
+      photo: data.photo, // Campo photo para updateDaimeInventoryItem
       created_at: data.created_at,
       updated_at: data.updated_at
     };

@@ -4,6 +4,7 @@ import MetricsCard from '../components/dashboard/MetricsCard';
 import DaimeForm from '../components/inventory/DaimeForm';
 import InventoryForm from '../components/inventory/InventoryForm';
 import InventoryList from '../components/inventory/InventoryList';
+import ImageThumbnail from '../components/ui/ImageThumbnail';
 import Modal from '../components/ui/Modal';
 import { useDataProvider } from '../hooks/useDataProvider';
 import { DaimeInventoryInsert, DaimeInventoryItem, InventoryItem } from '../types';
@@ -205,6 +206,7 @@ const Inventory: React.FC = () => {
           min_quantity: data.minQuantity,
           status: data.status as 'available' | 'low' | 'depleted',
           notes: data.notes,
+          photo: data.photo, // Adicionando campo photo que estava faltando
         });
       } else {
         await addInventoryItem({
@@ -218,6 +220,7 @@ const Inventory: React.FC = () => {
           min_quantity: data.minQuantity,
           status: data.status as 'available' | 'low' | 'depleted',
           notes: data.notes,
+          photo: data.photo, // Adicionando campo photo que estava faltando
         });
       }
       await loadInventory();
@@ -378,7 +381,7 @@ const Inventory: React.FC = () => {
 
       {activeTab === 'daime' && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
             <MetricsCard
               title="Total de Litros"
               value={totalDaimeLitros}
@@ -413,14 +416,14 @@ const Inventory: React.FC = () => {
 
           {/* Daime Inventory Grid */}
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-card">
-            <div className="p-6 border-b border-gray-100 dark:border-gray-700">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4 md:mb-0">
+            <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white">
                   Inventário do Sacramento
                 </h2>
                 <button
                   onClick={handleAddDaime}
-                  className="btn btn-primary flex items-center"
+                  className="btn btn-primary flex items-center justify-center w-full sm:w-auto"
                 >
                   <Droplets size={16} className="mr-1" />
                   Registrar Sacramento
@@ -433,6 +436,7 @@ const Inventory: React.FC = () => {
               <table className="table w-full">
                 <thead className="bg-gray-50 dark:bg-gray-700">
                   <tr>
+                    <th scope="col">Imagem</th>
                     <th scope="col">Código</th>
                     <th scope="col">Graduação</th>
                     <th scope="col">Litros</th>
@@ -450,6 +454,13 @@ const Inventory: React.FC = () => {
                   {daimeInventory.length > 0 ? (
                     daimeInventory.map((item) => (
                       <tr key={item.id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <ImageThumbnail 
+                            src={item.photo} 
+                            alt={`Sacramento ${item.codigo}`}
+                            size="md"
+                          />
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-800 dark:text-white">
                             {item.codigo}
@@ -522,7 +533,7 @@ const Inventory: React.FC = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={9} className="px-6 py-4 text-center">
+                      <td colSpan={10} className="px-6 py-4 text-center">
                         <p className="text-gray-500 dark:text-gray-400">
                           Nenhum registro de sacramento encontrado.
                         </p>
@@ -534,19 +545,32 @@ const Inventory: React.FC = () => {
             </div>
             
             {/* Cards para mobile */}
-            <div className="flex flex-col gap-4 md:hidden">
+            <div className="flex flex-col gap-3 sm:gap-4 md:hidden p-4">
               {daimeInventory.length > 0 ? (
                 daimeInventory.map((item) => (
-                  <div key={item.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg shadow p-4 flex flex-col gap-3">
-                    <div className="flex items-center justify-between">
-                      <div className="text-base font-semibold text-gray-800 dark:text-white">
-                        {item.codigo}
+                  <div key={item.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg shadow p-3 sm:p-4 flex flex-col gap-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+                        <ImageThumbnail 
+                          src={item.photo} 
+                          alt={`Sacramento ${item.codigo}`}
+                          size="sm"
+                          className="flex-shrink-0"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm sm:text-base font-semibold text-gray-800 dark:text-white truncate">
+                            {item.codigo}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {item.responsavelFeitio}
+                          </div>
+                        </div>
                       </div>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        item.status === 'disponivel' ? 'bg-green-100 text-green-800' :
-                        item.status === 'reservado' ? 'bg-yellow-100 text-yellow-800' :
-                        item.status === 'consumido' ? 'bg-gray-100 text-gray-800' :
-                        'bg-red-100 text-red-800'
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0 ${
+                        item.status === 'disponivel' ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' :
+                        item.status === 'reservado' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100' :
+                        item.status === 'consumido' ? 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100' :
+                        'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
                       }`}>
                         {item.status === 'disponivel' ? 'Disponível' :
                          item.status === 'reservado' ? 'Reservado' :
@@ -554,49 +578,50 @@ const Inventory: React.FC = () => {
                       </span>
                     </div>
                     
-                    <div className="flex flex-wrap gap-2 text-sm">
+                    <div className="flex flex-wrap gap-1 sm:gap-2 text-xs sm:text-sm">
                       <span className={`px-2 py-1 rounded ${
-                        item.graduacao === 'Força 5' ? 'bg-red-100 text-red-700' :
-                        item.graduacao === 'Força 4' ? 'bg-orange-100 text-orange-700' :
-                        item.graduacao === 'Força 3' ? 'bg-yellow-100 text-yellow-700' :
-                        item.graduacao === 'Força 2' ? 'bg-blue-100 text-blue-700' :
-                        'bg-green-100 text-green-700'
+                        item.graduacao === 'Força 5' ? 'bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-100' :
+                        item.graduacao === 'Força 4' ? 'bg-orange-100 text-orange-700 dark:bg-orange-800 dark:text-orange-100' :
+                        item.graduacao === 'Força 3' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-800 dark:text-yellow-100' :
+                        item.graduacao === 'Força 2' ? 'bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-100' :
+                        'bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-100'
                       }`}>
                         {item.graduacao}
                       </span>
-                      <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                      <span className="bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-100 px-2 py-1 rounded">
                         {item.litros}L
                       </span>
-                      <span className="bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                      <span className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-100 px-2 py-1 rounded">
                         {item.tipoFeitio}
                       </span>
                     </div>
                     
-                    <div className="text-sm text-gray-600 dark:text-gray-300">
-                      <div><strong>Data:</strong> {new Date(item.dataFeitio).toLocaleDateString('pt-BR')}</div>
-                      <div><strong>Responsável:</strong> {item.responsavelFeitio}</div>
-                      <div><strong>Local:</strong> {item.localArmazenamento}</div>
+                    <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 space-y-1">
+                      <div className="flex flex-wrap gap-4 text-xs">
+                        <span><strong>Data:</strong> {new Date(item.dataFeitio).toLocaleDateString('pt-BR')}</span>
+                        <span><strong>Local:</strong> {item.localArmazenamento}</span>
+                      </div>
                     </div>
                     
-                    <div className="flex gap-2 mt-2">
+                    <div className="flex gap-3 mt-2 justify-end">
                       <button
                         onClick={() => {
                           setSelectedDaime(item);
                           setIsViewingDaime(true);
                         }}
-                        className="text-primary-500 hover:text-primary-600 text-sm"
+                        className="text-primary-500 hover:text-primary-600 text-xs sm:text-sm font-medium"
                       >
                         Ver
                       </button>
                       <button
                         onClick={() => handleEditDaime(item)}
-                        className="text-secondary-500 hover:text-secondary-600 text-sm"
+                        className="text-secondary-500 hover:text-secondary-600 text-xs sm:text-sm font-medium"
                       >
                         Editar
                       </button>
                       <button
                         onClick={() => handleDeleteDaime(item.id)}
-                        className="text-red-500 hover:text-red-600 text-sm"
+                        className="text-red-500 hover:text-red-600 text-xs sm:text-sm font-medium"
                       >
                         Excluir
                       </button>
@@ -604,7 +629,7 @@ const Inventory: React.FC = () => {
                   </div>
                 ))
               ) : (
-                <div className="text-center text-gray-500 dark:text-gray-400 py-8">
+                <div className="text-center text-gray-500 dark:text-gray-400 py-8 text-sm">
                   Nenhum registro de sacramento encontrado.
                 </div>
               )}
